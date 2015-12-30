@@ -1,0 +1,15 @@
+baseurl = "http://blog.terranillius.com"
+title = "Terra Nullius"
+canonifyurls = true
+paginate = 10
+theme = "purehugo"
+languageCode = "en-us"
+copyright = "This work is licensed under a Creative Commons Attribution 4.0 International License"
+disqusShortname = "gaia-blog"
+
+[params]
+  twitter = "alexeiled"
+  twitterName = "alexeiled"
+  githubName = "alexei-led"
+  description = "The Programming Blog"
+  google_analytics = "UA-xxxxxx-xx"
