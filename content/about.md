@@ -1,7 +1,10 @@
 +++
 date = "2015-12-30T11:09:47+02:00"
-draft = true
+draft = false
 title = "about"
 
 +++
 
+## Alexei Ledenev
+
+Software Developer
