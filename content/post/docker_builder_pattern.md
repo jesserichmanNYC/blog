@@ -1,4 +1,10 @@
-# Docker Pattern: The Build Container
++++
+date = "2016-01-14T16:14:47+02:00"
+draft = false
+title = "Docker Pattern: The Build Container"
+tags = ["Docker", "pattern", "Dockerfile"]
+categories = ["Development"]
++++
 
 If you are developing a microservice in compiled language or even interpreted language that requires some additional “build” steps to package and lint your application code, I would like to share with you one pretty useful pattern.
 
@@ -35,11 +41,11 @@ ADD . $GAIA_HOME
 RUN ["mvn","verify"]
 ```
 
-As you can see, it’s a pretty simple file, with one little trick we are using to speedup our Maven build. 
+As you can see, it’s a pretty simple file, with one little trick we are using to speedup our Maven build.
 
-Now, we have all tools, that are required to compile our service. We can run this Docker container on any machine, without requiring even to have any JDK installed. We can run same Docker container on developer laptops and on our CI server. 
+Now, we have all tools, that are required to compile our service. We can run this Docker container on any machine, without requiring even to have any JDK installed. We can run same Docker container on developer laptops and on our CI server.
 
-Actually, this trick also greatly simplifies our CI process - we do not require CI to support any specific compiler,  version or tool; all we need is Docker engine, all other stuff we are bringing by ourselves. 
+Actually, this trick also greatly simplifies our CI process - we do not require CI to support any specific compiler,  version or tool; all we need is Docker engine, all other stuff we are bringing by ourselves.
 
 > BYOT - Bring Your Own Tolling! :-)
 
@@ -50,9 +56,9 @@ docker build -t build-img -f Dockerfile.build
 docker create --name build-cont build-img
 ```
 
-Once we’ve built the image and created a new container from this image, we already have our service compiled inside the container. Now the remaining task is to extract build artifacts from the container. We could use Docker volumes - this is one possible option. But actually we like the fact, that image, we’ve created, contains all tools and build artifacts inside it. It allows us to get any build artefacts from this image at anytime, by just creating a new container from it. 
+Once we’ve built the image and created a new container from this image, we already have our service compiled inside the container. Now the remaining task is to extract build artifacts from the container. We could use Docker volumes - this is one possible option. But actually we like the fact, that image, we’ve created, contains all tools and build artifacts inside it. It allows us to get any build artefacts from this image at anytime, by just creating a new container from it.
 
-So, to extract our build artifacts, we are using `docker cp` command. This command allows to copy files from container to local file system. 
+So, to extract our build artifacts, we are using `docker cp` command. This command allows to copy files from container to local file system.
 
 Here is how we are using this command:
 
@@ -62,7 +68,7 @@ docker cp build-cont:/usr/local/gaia/target/mgs.war ./target/mgs.war
 
 As a result, we have a compiled service code packaged into single WAR file. We can get exactly same WAR file on any machine, by just running our **builder** container, or by rebuilding the **builder** container against same code commit (using Git tag or specific commit ID) on any machine.
 
-Now we can create a Docker image with our service and required runtime, which is usually some version of JRE and servlet container. 
+Now we can create a Docker image with our service and required runtime, which is usually some version of JRE and servlet container.
 
 Here is our `Dockerfile` for the service. It's an image with Jetty, JRE8 and our service WAR file.
 
