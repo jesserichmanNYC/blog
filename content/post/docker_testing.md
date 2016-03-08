@@ -15,7 +15,7 @@ There are multiple testing strategies you can apply. In this post I will try to 
 
 ## The "Naive" - Testing Strategy
 
-This is the default approach, most people are taking. It relays on CI server to do the job. When taking this approach, the developer is using Docker as a package manager, kind of a better replacement for previously used **jar/rpm/deb** approach.
+This is the default approach, most people are taking. It relies on CI server to do the job. When taking this approach, the developer is using Docker as a package manager, kind of a better replacement for previously used **jar/rpm/deb** approach.
 The CI server compiles the application code and executes tests (unit, service, functional and others). The build artifacts are reused in Docker **build** to produce a new image, that becomes a core deployment artifact. The produced image contains not only application "binaries", but also a required runtime, all dependencies and application configuration.
 
 While you are getting the application portability, you are loosing the development and testing portability. You are not able to reproduce exactly the same development and testing environment outside of your CI. To create a new test environment you will need to setup all testing tools (correct versions and plugins), configure runtime and OS settings and get the same versions of test scripts and maybe also test data.
