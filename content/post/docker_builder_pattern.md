@@ -65,7 +65,7 @@ Here is how we are using this command:
 docker cp build-cont:/usr/local/gaia/target/mgs.war ./target/mgs.war
 ```
 
-As a result, we have a compiled service code, packaged into single WAR file. We get exactly the same WAR file on any machine by just running our **builder** container, or by rebuilding the **builder** container against the same code commit (using Git tag or specific commit ID) on any machine.
+As a result, we have a compiled service code, packaged into single WAR file. We get exactly the same WAR file on any machine just by running our **builder** container, or by rebuilding the **builder** container against the same code commit (using Git tag or specific commit ID) on any machine.
 
 We can now create a Docker image with our service and required runtime, which is usually some version of JRE and servlet container.
 
