@@ -6,41 +6,40 @@ tags = ["Docker", "testing", "integration test", "Dockerfile"]
 categories = ["Development"]
 +++
 
-So, you know how to build a Docker image and you are able to compose multiple containers into some meaningful application. Congratulations! You are in the right direction.
-Hopefully you've already created a Continuous Delivery pipeline and know how to push your newly created image into production or testing environment.
+Congratulations! You know how to build a Docker image and are able to compose multiple containers into a meaningful application. Hopefully, you've already created a Continuous Delivery pipeline and know how to push your newly created image into production or testing environment.
 
-> Now, the question is - *How do you test your Docker containers?*
+> Now, the question is - *How do we test our Docker containers?*
 
-There are multiple testing strategies you can apply. In this post I will try to review most of them, presenting benefits and drawbacks for each strategy.
+There are multiple testing strategies we can apply. In this post, I'll highlight them presenting benefits and drawbacks for each.
 
-## The "Naive" - Testing Strategy
+## The "Naive" approach
 
-This is the default approach, most people are taking. It relies on CI server to do the job. When taking this approach, the developer is using Docker as a package manager, kind of a better replacement for previously used **jar/rpm/deb** approach.
-The CI server compiles the application code and executes tests (unit, service, functional and others). The build artifacts are reused in Docker **build** to produce a new image, that becomes a core deployment artifact. The produced image contains not only application "binaries", but also a required runtime, all dependencies and application configuration.
+This is the default approach for most people. It relies on a CI server to do the job. When taking this approach, the developer is using Docker as a package manager, a better option than the **jar/rpm/deb** approach.
+The CI server compiles the application code and executes tests (unit, service, functional, and others). The build artifacts are reused in Docker **build** to produce a new image. This becomes a core deployment artifact. The produced image contains not only application "binaries", but also a required runtime including all dependencies and application configuration.
 
-While you are getting the application portability, you are loosing the development and testing portability. You are not able to reproduce exactly the same development and testing environment outside of your CI. To create a new test environment you will need to setup all testing tools (correct versions and plugins), configure runtime and OS settings and get the same versions of test scripts and maybe also test data.
+We are getting application portability, however, we are loosing the development and testing portability. We're not able to reproduce exactly the same development and testing environment outside the CI. To create a new test environment we'll need to setup the testing tools (correct versions and plugins), configure runtime and OS settings, and get the same versions of test scripts as well as perhaps, the test data.
 
 ![The Naive Testing Strategy](/img/naive.png)
 
-The attempt to resolve above problems leads us to the next strategy.
+To resolve these problems leads us to the next one.
 
-## App & Test Container - Testing Strategy
+## App & Test Container approach
 
-In this approach we try to create a single bundle, that decide the application "binaries" and required packages, also contains testing tools (specific versions), testing plugins, test scripts, test environment and all required packages.
+Here, we try to create a single bundle with the application "binaries" including required packages, testing tools (specific versions), test tools plugins, test scripts, test environment with all required packages.
 
-The benefits of this approach are obvious:
+The benefits of this approach:
 
-- You have a repeatable test environment - you can run exactly same tests, using same testing tools, in CI, development, staging or production environment
-- You capture test scripts at a specific point of time, so you can always reproduce them in any environment
-- You do not need to setup and configure your testing tools - they are part of your image
+- We have a repeatable test environment - we can run exactly the same tests using the same testing tools - in our CI, development, staging, or production environment
+- We capture test scripts at a specific point in time so we can always reproduce them in any environment
+- We do not need to setup and configure our testing tools - they are part of our image
 
-But this approach also has significant drawbacks:
+This approach has significant drawbacks:
 
-- You increase the image size - now it also contains testing tools, required packages, test script and maybe even test data
-- You pollute image runtime environment with test specific configuration and may even introduce an unneeded dependency (required by integration testing)
-- You also need to decide what to do with the tests results and logs; how and where to export them
+- Increases the image size - because it contains testing tools, required packages, test scripts, and perhaps even test data
+- Pollutes image runtime environment with test specific configuration and may even introduce an unneeded dependency (required by integration testing)
+- We also need to decide what to do with the test results and logs; how and where to export them
 
-Take a look at simplified `Dockerfile` bellow, it attempts to illustrate the described approach.
+Here's a simplified `Dockerfile`. It illustrates this approach.
 
 ```dockerfile
 FROM "<bases image>":"<version>"
@@ -74,30 +73,30 @@ CMD [run.sh, "<app arguments>"]
 
 ![App & Test Container](/img/app_test.png)
 
-## Test Aware Container - Testing Strategy
+There has to be a better way for in-container testing and there is.
 
-There should be a better approach for in-container testing and I will try to describe one.
+## Test Aware Container Approach
 
-Today Docker's promise is **"Build -> Ship -> Run"** - build your image, ship it to some registry and run it anywhere. IMHO there is one missing step - **Test**. The right sequence and more complete should be **:Build -> Test -> Ship -> Run**.
+Today, Docker's promise is **"Build -> Ship -> Run"** - build the image, ship it to some registry, and run it anywhere. IMHO there's a critical missing step - **Test**. The right and complete sequence should be **:Build -> Test -> Ship -> Run**.
 
-First, I will try to describe a "test-friendly" Dockerfile syntax and extensions to Docker commands, that could be done to natively support this important step. It's not a real syntax, but bear with me. I will try to define the "ideal" version and will show how to implement something that is pretty close.
+Let's look at a "test-friendly" Dockerfile syntax and extensions to Docker commands. This important step could be supported natively. It's not a real syntax, but bear with me. I'll define the "ideal" version and show how to implement something that's very close.
 
 ```
 ONTEST [INSTRUCTION]
 ```
 
-The idea is to define a special `ONTEST` instruction, similar to existing [`ONBUILD`](https://docs.docker.com/engine/reference/builder/#onbuild) instruction. The `ONTEST` instruction adds to the image a trigger instruction to be executed at a later time, when the image will be tested. Any build instruction can be registered as a trigger.
+Let's define a special `ONTEST` instruction, similar to existing [`ONBUILD`](https://docs.docker.com/engine/reference/builder/#onbuild) instruction. The `ONTEST` instruction adds a trigger instruction to the image to be executed at a later time when the image is tested. Any build instruction can be registered as a trigger.
 
-The `ONTEST` instruction should be respected by a new `docker test` command.
+The `ONTEST` instruction should be recognized by a new `docker test` command.
 
 ```
 docker test [OPTIONS] IMAGE [COMMAND] [ARG...]
 ```
 
 The `docker test` command syntax will be similar to `docker run` command, with one significant difference: a new "testable" image will be automatically generated and even tagged with `<image name>:<image tag>-test` tag ("test" postfix added to the original image tag). This "testable" image will generated `FROM` the application image, executing all build instructions, defined after `ONTEST` command and executing `ONTEST CMD` (or `ONTEST ENTRYPOINT`).
-The `docker test` command should return a non-zero code, if any of tests fails. The test results should be written into automatically generated `VOLUME`, that points to `/var/tests/results` folder.
+The `docker test` command should return a non-zero code if any tests fail. The test results should be written into an automatically generated `VOLUME` that points to `/var/tests/results` folder.
 
-Take a look at modified `Dockerfile` bellow - it  includes a new proposed `ONTEST` instruction.
+Let's look at a modified `Dockerfile` below - it includes the new proposed `ONTEST` instruction.
 
 ```dockerfile
 FROM "<base image>":"<version>"
@@ -138,27 +137,27 @@ ONTEST CMD [/test.sh, "<test arguments>"]
 
 ![Test Aware Container](/img/test_aware.png)
 
-### Make "Test Aware Container Testing Strategy" Real Today
+### Making "Test Aware Container" Real
 
-First, I think Docker need to take testing more seriously and make it part of the container management lifecycle. Still, there is a need to have a simple working solution today and here I will try to describe one, that is pretty close to desired state.
+We believe Docker should make `docker-test` part of the container management lifecycle. There is a need to have a simple working solution today and I'll describe one that's very close to the ideal state.
 
-As mentioned before, Docker has very useful `ONBUILD` instruction. This instruction allows to trigger another build instructions on succeeding builds.
-The basic idea is to use `ONBUILD` instruction, when running `docker-test` command.
+As mentioned before, Docker has a very useful `ONBUILD` instruction. This instruction allows us to trigger another build instruction on succeeding builds. The basic idea is to use `ONBUILD` instruction when running `docker-test` command.
 
-Here is the detailed flow, executed by `docker-test` command:
+The flow executed by `docker-test` command:
 
 1. `docker-test` will seach for `ONBUILD` instructions in application `Dockerfile` and will ...
 2. generate a temporary `Dockerfile.test` from original `Dockerfile`
-2. execute `docker build -f Dockerfile.test [OPTIONS] PATH` with additional options, supported by `docker build` command; `-test` will be automatically appended to `tag` option
-3. ff build is successful, execute `docker run -v ./tests/results:/var/tests/results [OPTIONS] IMAGE:TAG-test [COMMAND] [ARG...]`
+2. execute `docker build -f Dockerfile.test [OPTIONS] PATH` with additional options supported by `docker build` command: `-test` that will be automatically appended to `tag` option
+3. If build is successful, execute `docker run -v ./tests/results:/var/tests/results [OPTIONS] IMAGE:TAG-test [COMMAND] [ARG...]`
 4. Remove `Dockerfile.test` file
 
-Why not to create a new `Dockerfile.test` without messing with `ONBUILD` instruction?
-My answer is that in order to test right image (and tag) you will need to keep `FROM` always updated to **image:tag** you want to test. And this is not trivial.
+Why not create a new `Dockerfile.test` without requiring the `ONBUILD` instruction?
 
-There is also a limitation in the described approach - it's not suitable for "onbuild" images (images used to automatically build your app), like [Maven:onbuild](https://hub.docker.com/_/maven/)
+Because in order to test right image (and tag) we'll need to keep `FROM` always updated to **image:tag** that we want to test. This is not trivial.
 
-Take a look at the simple implementation of `docker-test` command bellow. It's presented here just to highlight the concept; real `docker-test` command should be able to handle `build` and `run` command options and be able to handle errors properly.
+There is a limitation in the described approach - it's not suitable for "onbuild" images (images used to automatically build your app), like [Maven:onbuild](https://hub.docker.com/_/maven/)
+
+Let's look at a simple implementation of `docker-test` command. It highlights the concept: the `docker-test` command should be able to handle `build` and `run` command options and be able to handle errors properly.
 
 ```sh
 #!/bin/bash
@@ -171,38 +170,44 @@ docker run -it --rm -v $(pwd)/tests/results:/var/tests/results "${image}:${tag}-
 rm Dockerfile.test
 ```
 
-## Integration Test Container - Testing Strategy
+Let's focus on the most interesting and relevant part.
 
-And now most interesting part of this post is coming (in my opinion).
+## Integration Test Container
 
-Suppose you have an application built from tens or hundreds of microservices. Suppose you succeed to create an automated CI/CD pipeline: where each microservice is built and tested by CI and delivered into some environment (testing, staging or production), when its build and tests pass. Pretty cool, isn't it?
-Your CI tests are pretty capable of testing each microservice in isolation, running unit and service tests (or API contract tests). Maybe even micro-integration tests - tests were run on subsystem created ad-hoc (for example with `docker compose` help).
-But what about real integration testing or long running tests (like performance and stress)? What about resilience tests ("chaos monkey" like tests)? Security scans? What about other test and scan activities that take time and should be run on a fully operational system?
+Let's say we have an application built from tens or hundreds of microservices. Let's say we have an automated CI/CD pipeline, where each microservice is built and tested by our CI and deployed into some environment (testing, staging or production) after the build and tests pass. Pretty cool, eh?
+Our CI tests are capable of testing each microservice in isolation - running unit and service tests (or API contract tests). Maybe even micro-integration tests - tests run on subsystem are created in ad-hoc manner (for example with `docker compose` help).
 
-There should be a better way, than just dropping a new microservice version into production and tightly monitor it for a while!
+This leads to some issues that we need to address:
 
-I suggest to create a special **Integration Test Container**. Such containers will contain only testing tools and test artifacts: test scripts, test data, test environment configuration and etc. To simplify orchestration and automation of such containers, I suggest to define and follow some conventions and metadata labels (using the Dockerfile `LABEL` instruction).  
+* What about real integration tests or long running tests (like performance and stress)? 
+* What about resilience tests ("chaos monkey" like tests)? 
+* Security scans? 
+* What about test and scan activities that take time and should be run on a fully operational system?
+
+There should be a better way than just dropping a new microservice version into production and tightly monitoring it for a while. 
+
+There should be a special **Integration Test Container**. These containers will contain only testing tools and test artifacts: test scripts, test data, test environment configuration, etc. To simplify orchestration and automation of such containers, we should define and follow some conventions and use metadata labels (Dockerfile `LABEL` instruction).  
 
 ### Integration Test Labels
 
-- **test.type** - test type; default `integration`; can be one of: `integration`, `performance`, `security`, `chaos` or any text; presence of this label states that this is the **Integration Test Container**
+- **test.type** - test type; default `integration`; can be one of: `integration`, `performance`, `security`, `chaos` or any text; presence of this label states that this is an **Integration Test Container**
 - **test.results** - `VOLUME` for test results; default `/var/tests/results`
 - **test.XXX** - any other test related metadata; just use **test.** prefix for label name
 
 ### Integration Test Container
 
-The **Integration Test Container** is just a regular Docker container, but it does not contain any application logic and code. Its the sole purpose is to create a repeatable and portable testing. The recommended content of the **Integration Test Container** should be something, like this:
+The **Integration Test Container** is just a regular Docker container. Tt does not contain any application logic and code. Its sole purpose is to create repeatable and portable testing. Recommended content of the **Integration Test Container**:
 
 - *The Testing Tool* - Phantom.js, Selenium, Chakram, Gatling, ...
 - *Testing Tool Runtime* - Node.js, JVM, Python, Ruby, ...
 - *Test Environment Configuration* - environment variables, config files, bootstrap scripts, ...
 - *Tests* - as compiled packages or script files
 - *Test Data* - any kind of data files, used by tests: json, csv, txt, xml, ...
-- *Test Startup Script* - some "main" startup script to run tests; just create `test.sh` and launch your testing tool from it.
+- *Test Startup Script* - some "main" startup script to run tests; just create `test.sh` and launch the testing tool from it.
 
-**Integration Test Containers** are supposed to run in a real operation environment, where all microservices are deployed, like: testing, staging or production. These containers can be deployed exactly as all other services being deployed. They use same network layer and thus can access multiple services, using selected service discovery method (usually DNS). Accessing multiple services is required for real integration testing: you need to simulate and validate how your system is working in multiple places. Keeping integration tests inside some application service container not only increases container footprint, but also creates an unneeded dependency between multiple services. Keep all these dependencies at the level of **Integration Test Container**. Once your tests (and testing tools) are packaged inside the container, you can always rerun same tests on any environment or event developer machine. You can always return "back in time" and rerun specific version of **Integration Test Container**.
+**Integration Test Containers** should run in an operational environment where all microservices are deployed: testing, staging or production. These containers can be deployed exactly as all other services. They use same network layer and thus can access multiple services; using selected service discovery method (usually DNS). Accessing multiple services is required for real integration testing - we need to simulate and validate how our system is working in multiple places. Keeping integration tests inside some application service container not only increases the container footprint but also creates an unneeded dependency between multiple services. We keep all these dependencies at the level of the **Integration Test Container**. Once our tests (and testing tools) are packaged inside the container, we can always rerun the same tests on any environment including the developer machine. You can always go back in time and rerun a specific version of **Integration Test Container**.
 
 ![Integration Test Container](/img/int_test.png)
 
 
-WDYT?
+WDYT? Your feedback, particularly on standardizing the `docker-test` command, is greatly appreciated.
