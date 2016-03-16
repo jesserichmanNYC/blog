@@ -70,6 +70,7 @@ CMD [run.sh, "<app arguments>"]
 # it's not possible to have multiple CMD commands, but this is the "main" test command
 # CMD [/test.sh, "<test arguments>"]
 ```
+[Dockerfile](https://gist.github.com/alexei-led/cbb3d46fcf422a24aacd)
 
 ![App & Test Container](/img/app_test.png)
 
@@ -134,6 +135,7 @@ CMD [run.sh, "<app arguments>"]
 # main test command
 ONTEST CMD [/test.sh, "<test arguments>"]
 ```
+[Dockerfile](https://gist.github.com/alexei-led/4f39cca8a03b1503978a)
 
 ![Test Aware Container](/img/test_aware.png)
 
@@ -145,7 +147,7 @@ As mentioned before, Docker has a very useful `ONBUILD` instruction. This instru
 
 The flow executed by `docker-test` command:
 
-1. `docker-test` will seach for `ONBUILD` instructions in application `Dockerfile` and will ...
+1. `docker-test` will search for `ONBUILD` instructions in application `Dockerfile` and will ...
 2. generate a temporary `Dockerfile.test` from original `Dockerfile`
 2. execute `docker build -f Dockerfile.test [OPTIONS] PATH` with additional options supported by `docker build` command: `-test` that will be automatically appended to `tag` option
 3. If build is successful, execute `docker run -v ./tests/results:/var/tests/results [OPTIONS] IMAGE:TAG-test [COMMAND] [ARG...]`
@@ -179,12 +181,12 @@ Our CI tests are capable of testing each microservice in isolation - running uni
 
 This leads to some issues that we need to address:
 
-* What about real integration tests or long running tests (like performance and stress)? 
-* What about resilience tests ("chaos monkey" like tests)? 
-* Security scans? 
-* What about test and scan activities that take time and should be run on a fully operational system?
+- What about real integration tests or long running tests (like performance and stress)?
+- What about resilience tests ("chaos monkey" like tests)?
+- Security scans?
+- What about test and scan activities that take time and should be run on a fully operational system?
 
-There should be a better way than just dropping a new microservice version into production and tightly monitoring it for a while. 
+There should be a better way than just dropping a new microservice version into production and tightly monitoring it for a while.
 
 There should be a special **Integration Test Container**. These containers will contain only testing tools and test artifacts: test scripts, test data, test environment configuration, etc. To simplify orchestration and automation of such containers, we should define and follow some conventions and use metadata labels (Dockerfile `LABEL` instruction).  
 
