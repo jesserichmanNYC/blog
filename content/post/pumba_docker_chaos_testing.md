@@ -5,6 +5,7 @@ title = "Pumba - Chaos Testing for Docker"
 tags = ["Docker", "testing", "chaos testing", "resilience"]
 categories = ["Development"]
 +++
+## Introduction
 
 The best defense against major unexpected failures is to fail often. By causing failures, you can force your services to be built in a way that is more resilient.
 Resilience of a system can be defined as its ability to continue functioning even if some components of the system fail. Growing popularity of distributed and microservice architecture makes resilience testing an important testing practice, that none should skip.
@@ -13,7 +14,7 @@ Resilience Testing is a testing approach, where you inject different types of fa
 ## What is Pumba?
 
 ![Pumba](/img/pumba.png)
-∏
+
 First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". And this actually reflects the desired behavior of this application.
 
 Pumba is inspired by [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS cloud. Pumba takes the same approach down to the contaioner level. It connects to the Docker daemon running on some machine (local or remote) and brings some level of chaos to it, by "randomly" killing, stopping and removing running containers.
