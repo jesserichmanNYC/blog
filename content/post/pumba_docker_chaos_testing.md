@@ -20,7 +20,7 @@ First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa
 
 Pumba is inspired by highly popular [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS cloud. Pumba takes similar approach, but applies it to container level. It connects to the Docker daemon running on some machine (local or remote) and brings some level of chaos to it: "randomly" killing, stopping and removing running containers.
 
-If you your system is designed to be resilient, it should be able to recover from such failures. "Failed" services should be restarted and lost connections should be recovered. This is not as trivial as it sounds. You need to design your services differently, be aware, that service can fail (for whatever reason) or service it depends on can disappear at any point of time (but can reappear later on). Expect unexpected!
+If your system is designed to be resilient, it should be able to recover from such failures. "Failed" services should be restarted and lost connections should be recovered. This is not as trivial as it sounds. You need to design your services differently, be aware, that service can fail (for whatever reason) or service it depends on can disappear at any point of time (but can reappeared later on). Expect unexpected!
 
 ## Why to run Pumba?
 
@@ -31,7 +31,7 @@ Here comes Pumba. You run it on every Docker host, in your cluster and it, once 
 
 ## How to run Pumba?
 
-There are two ways to run the Pumba.
+There are two ways to run Pumba.
 
 First, you can download Pumba application (single binary file) for your OS from project [release page](https://github.com/gaia-adm/pumba/releases) and run `pumba -h` to see list of supported options.
 
