@@ -33,38 +33,57 @@ Here comes Pumba. You run it on every Docker host, in your cluster and it, once 
 
 There are two ways to run Pumba.
 
-First, you can download Pumba application (single binary file) for your OS from project [release page](https://github.com/gaia-adm/pumba/releases) and run `pumba -h` to see list of supported options.
+First, you can download Pumba application (single binary file) for your OS from project [release page](https://github.com/gaia-adm/pumba/releases) and run `pumba help` and `pumba run --help` to see list of supported options.
 
 ```
+$ pumba help
+
 NAME:
-   pumba - Pumba is a resiliency tool that helps applications tolerate random Docker container failures.
+   Pumba - Pumba is a resiliency tool that helps applications tolerate random Docker container failures.
 
 USAGE:
-   pumba [options...]
+   pumba [global options] command [command options] [arguments...]
 
 VERSION:
-   0.1.3
+   0.1.4
 
-OPTIONS:
+COMMANDS:
+    run	Pumba starts making chaos: periodically (and randomly) kills/stops/remove specified containers
+
+GLOBAL OPTIONS:
    --host, -H "unix:///var/run/docker.sock"  daemon socket to connect to [$DOCKER_HOST]
    --tls                                     use TLS; implied by --tlsverify
    --tlsverify                               use TLS and verify the remote [$DOCKER_TLS_VERIFY]
    --tlscacert "/etc/ssl/docker/ca.pem"      trust certs signed only by this CA
    --tlscert "/etc/ssl/docker/cert.pem"      client certificate for TLS authentication
    --tlskey "/etc/ssl/docker/key.pem"        client key for TLS authentication
-   --debug                                   enable debug mode with  verbose logging
-   --chaos [--chaos option --chaos option]   chaos command: `container(s,)/re2:regex|interval(s/m/h postfix)|STOP/KILL(:SIGNAL)/RM`
+   --debug                                   enable debug mode with verbose logging
    --help, -h                                show help
    --version, -v                             print the version
 ```
 
-The command is pretty simple. If you already have Docker client installed and configured on your machine (i.e. `$DOCKER_HOST` environment variable is defined), you will need only to specify `chaos` options. And that's all.
+```
+$ pumba run --help
 
-### The "chaos" command
+NAME:
+   pumba run - Pumba starts making chaos: periodically (and randomly) kills/stops/remove specified containers
 
-The `chaos` command is a 3-tuple (or triple), spearated by `|` (vertical bar) character, that specifies container(s), recurrency interval and the "kill" command to run. It's possible to include multiple `chaos` triples for same `pumba` command.
+USAGE:
+   pumba run [command options] [arguments...]
 
-**3-tuple structure**
+OPTIONS:
+   --chaos, -c [--chaos option --chaos option]    chaos command: `container(s,)/re2:regex|interval(s/m/h postfix)|STOP/KILL(:SIGNAL)/RM`
+   --random, -r                                   Random mode: randomly select single matching container t NAME:
+   pumba run - Pumba starts making chaos: periodically (and randomly) kills/stops/remove specified containers
+```
+
+The `run` command is pretty simple. If you already have Docker client installed and configured on your machine (i.e. `$DOCKER_HOST` environment variable is defined), you will need only to execute `run` with `--chaos` options (and optionally `--random`). And that's all.
+
+### The "run" command
+
+The `run` command follows by one or more `--chaos` options, each of them is a 3-tuple (or triple), spearated by `|` (vertical bar) character, that specifies container(s), recurrency interval and the "kill" command to run.
+
+#### `--chaos, -c` option(s): 3-tuple structure
 
 1. First argument can be:
   - *name* - container name
@@ -78,21 +97,25 @@ The `chaos` command is a 3-tuple (or triple), spearated by `|` (vertical bar) ch
   - `KILL(:SIGNAL)` - kill running container, with specified (optional) **signal**: `SIGTERM`, `SIGKILL`, `SIGSTOP` and others. `SIGKILL` is the default signal, that will be sent if no signal is specified.
   - `RM` - force remove running container(s)
 
+#### `--random, -r` option
+
+Use this option to randomly select **single** matching container, specified by `--chaos` option.
+
 #### Examples
 
 ```
-# stop ALL containers once in a 10 minutes
-$ ./pumba --chaos "|10m|STOP"
+# stop random container once in a 10 minutes
+$ ./pumba run --chaos "|10m|STOP" --random
 ```
 
 ```
 # every 15 minutes kill `mysql` container and every hour remove containers starting with "hp"
-$ ./pumba --chaos "mysql|15m|KILL:SIGTERM" --chaos "re2:^hp|1h|RM"
+$ ./pumba run -c "mysql|15m|KILL:SIGTERM" -c "re2:^hp|1h|RM"
 ```
 
 ```
 # every 30 seconds kill "worker1" and "worker2" containers and every 3 minutes stop "queue" container
-$ ./pumba --chaos "worker1,worker2|30s|KILL:SIGKILL" --chaos "queue|3m|STOP"
+$ ./pumba run --chaos "worker1,worker2|30s|KILL:SIGKILL" --chaos "queue|3m|STOP"
 ```
 
 ### Running Pumba in Docker Container
@@ -102,7 +125,7 @@ In order to give Pumba access to Docker daemon on host machine, you will need to
 
 ```
 # run latest stable Pumba docker image (from master repository)
-$ docker run -d gaiaadm/pumba:master --chaos "mysql|10m|STOP"
+$ docker run -d gaiaadm/pumba:master run --chaos "|10m|STOP" --random
 ```
 
 Pumba will not kill its own container, no matter what. If you will try to run multiple Pumba containers on same host, only last one will run and will stop all previous Pumba containers.
