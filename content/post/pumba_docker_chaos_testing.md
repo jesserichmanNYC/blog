@@ -16,7 +16,7 @@ Resilience Testing is a testing approach, where you inject different types of fa
 
 ![Pumba](/img/pumba.png)
 
-First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". And this actually reflects the desired behavior of application, I've tried to build :)
+First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". And this actually reflects the desired behaviour of application, I've tried to build :)
 
 Pumba is inspired by highly popular [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS cloud. Pumba takes similar approach, but applies it to container level. It connects to the Docker daemon running on some machine (local or remote) and brings some level of chaos to it: "randomly" killing, stopping and removing running containers.
 
@@ -73,8 +73,7 @@ USAGE:
 
 OPTIONS:
    --chaos, -c [--chaos option --chaos option]    chaos command: `container(s,)/re2:regex|interval(s/m/h postfix)|STOP/KILL(:SIGNAL)/RM`
-   --random, -r                                   Random mode: randomly select single matching container t NAME:
-   pumba run - Pumba starts making chaos: periodically (and randomly) kills/stops/remove specified containers
+   --random, -r                                   Random mode: randomly select single matching container to 'kill'
 ```
 
 The `run` command is pretty simple. If you already have Docker client installed and configured on your machine (i.e. `$DOCKER_HOST` environment variable is defined), you will need only to execute `run` with `--chaos` options (and optionally `--random`). And that's all.
@@ -90,7 +89,7 @@ The `run` command follows by one or more `--chaos` options, each of them is a 3-
   - *names* - comma separated list of container names
   - *empty* - empty string; means ALL containers
   - *re2:regex* - [RE2](https://github.com/google/re2/wiki/Syntax) regular expression; all matching containers will be "killed". Use `re2:` prefix to specify regular expression.
-2. Recurrency interval - `pumba` will run specified command recurrently, based on interval definition
+2. Recurrence interval - `pumba` will run specified command recurrently, based on interval definition
   - An interval is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 3. "Kill" command
   - `STOP` - stop running container(s)
