@@ -8,7 +8,7 @@ categories = ["Development"]
 
 ## Introduction
 
-The best defense against major unexpected failures is to fail often. By causing failures, you can force your services to be built in a way, that makes them more resilient.
+The best defence against major unexpected failures is to fail often. By causing failures, you can force your services to be built in a way, that makes them more resilient.
 Resilience of the system can be defined as its ability to continue functioning even if some components of the system are failing. Growing popularity of distributed and microservice architecture makes resilience testing an important testing practice, that none should skip.
 Resilience Testing is a testing approach, where you inject different types of failures at infrastructure level (VM, network, containers and  processes) and let your system try to recover from the injected failures. This way you simulate real failures, that might happen in production environment. Practicing resilience testing, is the best way to enforce highly avaiable and resilient architecture.
 
@@ -80,7 +80,7 @@ The `run` command is pretty simple. If you already have Docker client installed 
 
 ### The "run" command
 
-The `run` command follows by one or more `--chaos` options, each of them is a 3-tuple (or triple), spearated by `|` (vertical bar) character, that specifies container(s), recurrency interval and the "kill" command to run.
+The `run` command follows by one or more `--chaos` options, each of them is a 3-tuple (or triple), separated by `|` (vertical bar) character, that specifies container(s), recurrence interval and the "kill" command to run.
 
 #### `--chaos, -c` option(s): 3-tuple structure
 
