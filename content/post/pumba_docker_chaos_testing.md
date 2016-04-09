@@ -14,7 +14,7 @@ Resilience Testing is a testing approach, where you inject different types of fa
 
 ## What is Pumba?
 
-![Pumba](/img/pumba.png)
+![Pumba](/img/pumba_docker.png)
 
 First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". And this actually reflects the desired behaviour of application, I've tried to build :)
 
