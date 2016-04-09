@@ -10,7 +10,7 @@ categories = ["Development"]
 
 The best defence against major unexpected failures is to fail often. By causing failures, you can force your services to be built in a way, that makes them more resilient.
 Resilience of the system can be defined as its ability to continue functioning even if some components of the system are failing. Growing popularity of distributed and microservice architecture makes resilience testing an important testing practice, that none should skip.
-Resilience Testing is a testing approach, where you inject different types of failures at infrastructure level (VM, network, containers and  processes) and let your system try to recover from the injected failures. This way you simulate real failures, that might happen in production environment. Practicing resilience testing, is the best way to enforce highly avaiable and resilient architecture.
+Resilience Testing is a testing approach, where you inject different types of failures at infrastructure level (VM, network, containers and  processes) and let your system try to recover from the injected failures. This way you simulate real failures, that might happen in production environment. Practicing resilience testing, is the best way to enforce highly available and resilient architecture.
 
 ## What is Pumba?
 
@@ -124,7 +124,7 @@ In order to give Pumba access to Docker daemon on host machine, you will need to
 
 ```
 # run latest stable Pumba docker image (from master repository)
-$ docker run -d gaiaadm/pumba:master run --chaos "|10m|STOP" --random
+$ docker run -d -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba:master run --chaos "|10m|STOP" --random
 ```
 
 Pumba will not kill its own container, no matter what. If you will try to run multiple Pumba containers on same host, only last one will run and will stop all previous Pumba containers.
