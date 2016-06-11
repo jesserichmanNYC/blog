@@ -8,26 +8,26 @@ categories = ["Development"]
 
 ## Introduction
 
-The best defence against major unexpected failures is to fail often. By causing failures, you can force your services to be built in a way, that makes them more resilient.
-Resilience of the system can be defined as its ability to continue functioning even if some components of the system are failing. Growing popularity of distributed and microservice architecture makes resilience testing an important testing practice, that none should skip.
-Resilience Testing is a testing approach, where you inject different types of failures at infrastructure level (VM, network, containers and  processes) and let your system try to recover from the injected failures. This way you simulate real failures, that might happen in production environment. Practicing resilience testing, is the best way to enforce highly available and resilient architecture.
+The best defense against unexpected failures is to test your services by injecting failures yourself. Resiliency can be detected by you rather than failuers detected by your users. 
+Resiliency of the system can be defined by its ability to continue functioning even if some components (services) of the system are failing. Growing popularity of distributed microservice architectures makes resilience testing an important practice that no one should skip.
+Resilience testing is an approach where you inject different types of failures at the infrastructure level (VM, network, containers and  processes) and let your system try to recover from these failures. Simulating real failures that might happen in production environment ensures that you system is reliable and resilient. Practicing resilience testing is the best way to enforce highly available and resilient architecture.
 
 ## What is Pumba?
 
 ![Pumba](/img/pumba_docker.png)
 
-First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". And this actually reflects the desired behaviour of application, I've tried to build :)
+First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". This reflects the unexpected behaviour of the application.
 
-Pumba is inspired by highly popular [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS cloud. Pumba takes similar approach, but applies it to container level. It connects to the Docker daemon running on some machine (local or remote) and brings some level of chaos to it: "randomly" killing, stopping and removing running containers.
+Pumba is inspired by highly popular [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS cloud. Pumba takes a similar approach but applies it at the container level. It connects to the Docker daemon running on some machine (local or remote) and brings a level of chaos to it: "randomly" killing, stopping, and removing running containers.
 
-If your system is designed to be resilient, it should be able to recover from such failures. "Failed" services should be restarted and lost connections should be recovered. This is not as trivial as it sounds. You need to design your services differently, be aware, that service can fail (for whatever reason) or service it depends on can disappear at any point of time (but can reappeared later on). Expect unexpected!
+If your system is designed to be resilient, it should be able to recover from such failures. "Failed" services should be restarted and lost connections should be recovered. This is not as trivial as it sounds. You need to design your services differently. Be aware that a service can fail (for whatever reason) or service it depends on can disappear at any point of time (but can reappear later). Expect the unexpected!
 
-## Why to run Pumba?
+## Why run Pumba?
 
-Failures happen, and they inevitably happen when least desired. If your application cannot recover from system failures, you are going to face angry customers and maybe even loose them. If you want to be sure, that your system is able to recover from unexpected failures, it would be better to take charge on them and inject failures by yourself instead of waiting till they happen. And this is not a one time effort. In age of Continious Delivery, you need to be sure that every change, done to one of system services, does not compromise system avaiability and resilience. That's why you should practice **continuous resilience testing**.
-With Docker gaining popularity, people use it more and more in production environment, running clusters of containers. Using some kind of container orchestration network (Kubernetes, Swarm, CoreOS fleet), it's possible to restart "failed" container automatically, but how you can be sure that restarted services and other system services can properly recover from different system failures? And if you are not using container orchestration frameworks, life is even harder: you will need to handle container restarts by yourself.
+Failures happen and they inevitably happen when least desired. If your application cannot recover from system failures, you are going to face angry customers and maybe even loose them. If you want to be sure that your system is able to recover from unexpected failures, it would be better to take charge of them and inject failures yourself instead of waiting till they happen. This is not a one time effort. In age of Continious Delivery, you need to be sure that every change to any one of system services, does not compromise system avaiability. That's why you should practice **continuous resilience testing**.
+With Docker gaining popularity as people are deploying and running clusters of containers in production. Using a container orchestration network (e.g. Kubernetes, Swarm, CoreOS fleet), it's possible to restart a "failed" container automatically. How can you be sure that restarted services and other system services can properly recover from failures? If you are not using container orchestration frameworks, life is even harder: you will need to handle container restarts by yourself.
 
-Here comes Pumba. You run it on every Docker host, in your cluster and it, once in a while, will "randomly" stop running containers, matching specified name/s or name patterns. You can even specify the *signal*, that will be sent to "kill" the container.
+This is where Pumba shines. You can run it on every Docker host, in your cluster, and Pumba will "randomly" stop running containers - matching specified name/s or name patterns. You can even specify the *signal* that will be sent to "kill" the container.
 
 ## How to run Pumba?
 
@@ -76,7 +76,7 @@ OPTIONS:
    --random, -r                                   Random mode: randomly select single matching container to 'kill'
 ```
 
-The `run` command is pretty simple. If you already have Docker client installed and configured on your machine (i.e. `$DOCKER_HOST` environment variable is defined), you will need only to execute `run` with `--chaos` options (and optionally `--random`). And that's all.
+The `run` command is pretty simple. If you already have Docker client installed and configured on your machine (i.e. `$DOCKER_HOST` environment variable is defined), you can execute `run` with `--chaos` options (and optionally `--random`). And that's all.
 
 ### The "run" command
 
@@ -119,7 +119,7 @@ $ ./pumba run --chaos "worker1,worker2|30s|KILL:SIGKILL" --chaos "queue|3m|STOP"
 
 ### Running Pumba in Docker Container
 
-The second approach to run Pumba, is to run it with Docker container.
+The second approach to run it in a Docker container.
 In order to give Pumba access to Docker daemon on host machine, you will need to mount `var/run/docker.sock` unix socket.
 
 ```
@@ -127,9 +127,16 @@ In order to give Pumba access to Docker daemon on host machine, you will need to
 $ docker run -d -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba:master run --chaos "|10m|STOP" --random
 ```
 
-Pumba will not kill its own container, no matter what. If you will try to run multiple Pumba containers on same host, only last one will run and will stop all previous Pumba containers.
+Pumba will not kill its own container. If you try to run multiple Pumba containers on the same host, it will stop all previous containers and run the latest one.
+
+Note: For Mac OSX - before you run Pumba, you may want to do the following after downloading the [pumba_darwin_amd64](https://github.com/gaia-adm/pumba/releases) binary:
+```
+chmod +x pumba_darwin_amd64
+mv pumba_darwin_amd64 /usr/local/bin/pumba
+pumba
+```
 
 ### Next
 
-I've just created the Pumba project and will gladly accept ideas, Pull Requests, issues and contributions to the project.
+The Pumba project is avaialble for you to try out. We will gladly accept ideas, pull requests, issues, and contributions to the project.
 [Pumba GitHub Repository](https://github.com/gaia-adm/pumba)
