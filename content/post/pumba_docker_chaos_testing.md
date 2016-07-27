@@ -1,5 +1,5 @@
 +++
-date = "2016-04-06T20:00:00+02:00"
+date = "2016-07-27T20:00:00+02:00"
 draft = false
 title = "Pumba - Chaos Testing for Docker"
 tags = ["Docker", "testing", "chaos testing", "resilience"]
@@ -9,127 +9,262 @@ categories = ["Development"]
 ## Introduction
 
 The best defense against unexpected failures is to build resilient services. Testing for resiliency enables the teams to learn where their apps fail before the customer does. By intentionally causing failures as part of resiliency testing, you can enforce your policy for building resilient systems.
-Resilience of the system can be defined as its ability to continue functioning even if some components of the system are failing - [ephemeraliaty](https://en.wikipedia.org/wiki/Ephemerality). Growing popularity of distributed and microservice architecture makes resilience testing critical for applications that now require 24x7x365 operation. 
-Resilience testing is an approach where you intentionally inject different types of failures at the infrastructure level (VM, network, containers,and processes) and let the system try to recover from these unexpected failures that can happen in production. Simulating realistic failures at any time is the best way to enforce highly available and resilient systems.
+Resilience of the system can be defined as its ability to continue functioning even if some components of the system are failing - [ephemerality](https://en.wikipedia.org/wiki/Ephemerality). Growing popularity of distributed and microservice architecture makes resilience testing critical for applications that now require 24x7x365 operation.
+Resilience testing is an approach where you intentionally inject different types of failures at the infrastructure level (VM, network, containers, and processes) and let the system try to recover from these unexpected failures that can happen in production. Simulating realistic failures at any time is the best way to enforce highly available and resilient systems.
 
 ## What is Pumba?
 
 ![Pumba](/img/pumba_docker.png)
 
-First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weakminded, careless, negligent". And this actually reflects the desired behaviour of application. 
+First of all, [Pumba](https://en.wikipedia.org/wiki/Timon_and_Pumbaa) (or Pumbaa) is a supporting character from Disney's animated film *The Lion King*. In Swahili, *pumbaa* means "to be foolish, silly, weak-minded, careless, negligent". This reflects the unexpected behavior of the application.
 
-Pumba is inspired by the highly popular [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS. Pumba takes a similar approach, but applies it at a container level. It connects to the Docker daemon running on some machine (local or remote) and brings levels of chaos to it: randomly killing, stopping, and removing running containers.
+Pumba is inspired by highly popular [Netfix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey) resilience testing tool for AWS cloud. Pumba takes a similar approach but applies it at the container level. It connects to the Docker daemon running on some machine (local or remote) and brings a level of chaos to it: "randomly" killing, stopping, and removing running containers.
 
-If the system is designed to be resilient, it should be able to recover from such failures. "Failed" services should be restarted,  lost connections should be recovered, application should degrade gracefully. Example, when you go into a tunnel and the network connection is lost, google maps does not crash, the app says "try again" and will automatically try to re-connect. This is not as trivial as it sounds. Designing services differently requires the team to be aware that any service can fail for any reason including the service it depends on as well as the resources can dissappear at any point in time and re-appear. Expect the unexpected!
+If your system is designed to be resilient, it should be able to recover from such failures. "Failed" services should be restarted and lost connections should be recovered. This is not as trivial as it sounds. You need to design your services differently. Be aware that a service can fail (for whatever reason) or service it depends on can disappear at any point of time (but can reappear later). Expect the unexpected!
 
-## Why to run Pumba?
+## Why run Pumba?
 
-Failures happen and they will happen at the most inopportune time. If the application cannot recover from system failures, you are going to face angry customers and maybe even loose them. To be sure that your system is able to recover from unexpected failures, it would be best to test for them by intentionally injecting failures instead of dealing with very bad consequences for your organization. They will happen -- likely in production. This is not a one time effort. In the age of Continious Delivery, we need to be sure that every change to any one of system services does not compromise system avaiability and resilience. That's why we should practice **continuous resilience testing**.
-With Docker gaining popularity, running clusters of container using some kind of container orchestration network (Kubernetes, Swarm, CoreOS fleet), it's possible to restart "failed" containers automatically. How can we be sure that restarted services and other system services can recover from various system failures? Also if you are not using a container orchestration framework, it is even harder: we need to handle container restarts manually.
+Failures happen and they inevitably happen when least desired. If your application cannot recover from system failures, you are going to face angry customers and maybe even loose them. If you want to be sure that your system is able to recover from unexpected failures, it would be better to take charge of them and inject failures yourself instead of waiting till they happen. This is not a one time effort. In age of Continuous Delivery, you need to be sure that every change to any one of system services, does not compromise system availability. That's why you should practice **continuous resilience testing**.
+With Docker gaining popularity as people are deploying and running clusters of containers in production. Using a container orchestration network (e.g. Kubernetes, Swarm, CoreOS fleet), it's possible to restart a "failed" container automatically. How can you be sure that restarted services and other system services can properly recover from failures? If you are not using container orchestration frameworks, life is even harder: you will need to handle container restarts by yourself.
 
-With Pumba on every Docker host and in your cluster, it can occassionally be triggered to "randomly" stop running containers, matching specified name/s or name patterns. You can specify the *signal*, that will be sent to "kill" the container.
+This is where Pumba shines. You can run it on every Docker host, in your cluster, and Pumba will "randomly" stop running containers - matching specified name/s or name patterns. You can even specify the *signal* that will be sent to "kill" the container.
+
+## What Pumba can do?
+
+Pumba can create different failures for your running Docker containers. Pumba can kill, stop or remove running containers. It can also pause all processes withing running container for specified period of time.
+Pumba can also do network emulation, simulating different network failures, like: delay, packet loss/corruption/reorder, bandwidth limits and more.
+*Disclaimer:* `netem` command is under development and only `delay` command is supported in Pumba `v0.2.0`.
+
+You can pass list of containers to Pumba or just write a regular expression to select matching containers. If you will not specify containers, Pumba will try to disturb all running containers. Use `--random` option, to randomly select only one target container from provided list.
 
 ## How to run Pumba?
 
 There are two ways to run Pumba.
 
-First, you can download Pumba application (single binary file) for your OS from project [release page](https://github.com/gaia-adm/pumba/releases) and run `pumba help` and `pumba run --help` to see list of supported options.
+First, you can download Pumba application (single binary file) for your OS from project [release page](https://github.com/gaia-adm/pumba/releases) and run `pumba help` to see list of supported commands and options.
 
 ```
 $ pumba help
 
+Pumba version v0.2.0
 NAME:
-   Pumba - Pumba is a resiliency tool that helps applications tolerate random Docker container failures.
+   Pumba - Pumba is a resilience testing tool, that helps applications tolerate random Docker container failures: process, network and performance.
 
 USAGE:
-   pumba [global options] command [command options] [arguments...]
+   pumba [global options] command [command options] containers (name, list of names, RE2 regex)
 
 VERSION:
-   0.1.4
+   v0.2.0
 
 COMMANDS:
-    run	Pumba starts making chaos: periodically (and randomly) kills/stops/remove specified containers
+     kill     kill specified containers
+     netem    emulate the properties of wide area networks
+     pause    pause all processes
+     stop     stop containers
+     rm       remove containers
+     help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --host, -H "unix:///var/run/docker.sock"  daemon socket to connect to [$DOCKER_HOST]
-   --tls                                     use TLS; implied by --tlsverify
-   --tlsverify                               use TLS and verify the remote [$DOCKER_TLS_VERIFY]
-   --tlscacert "/etc/ssl/docker/ca.pem"      trust certs signed only by this CA
-   --tlscert "/etc/ssl/docker/cert.pem"      client certificate for TLS authentication
-   --tlskey "/etc/ssl/docker/key.pem"        client key for TLS authentication
-   --debug                                   enable debug mode with verbose logging
-   --help, -h                                show help
-   --version, -v                             print the version
+   --host value, -H value      daemon socket to connect to (default: "unix:///var/run/docker.sock") [$DOCKER_HOST]
+   --tls                       use TLS; implied by --tlsverify
+   --tlsverify                 use TLS and verify the remote [$DOCKER_TLS_VERIFY]
+   --tlscacert value           trust certs signed only by this CA (default: "/etc/ssl/docker/ca.pem")
+   --tlscert value             client certificate for TLS authentication (default: "/etc/ssl/docker/cert.pem")
+   --tlskey value              client key for TLS authentication (default: "/etc/ssl/docker/key.pem")
+   --debug                     enable debug mode with verbose logging
+   --json                      produce log in JSON format: Logstash and Splunk friendly
+   --slackhook value           web hook url; send Pumba log events to Slack
+   --slackchannel value        Slack channel (default #pumba) (default: "#pumba")
+   --interval value, -i value  recurrent interval for chaos command; use with optional unit suffix: 'ms/s/m/h'
+   --random, -r                randomly select single matching container from list of target containers
+   --dry                       dry runl does not create chaos, only logs planned chaos commands
+   --help, -h                  show help
+   --version, -v               print the version
 ```
 
+### Kill Container command
+
 ```
-$ pumba run --help
+$ pumba kill -h
 
 NAME:
-   pumba run - Pumba starts making chaos: periodically (and randomly) kills/stops/remove specified containers
+   pumba kill - kill specified containers
 
 USAGE:
-   pumba run [command options] [arguments...]
+   pumba kill [command options] containers (name, list of names, RE2 regex)
+
+DESCRIPTION:
+   send termination signal to the main process inside target container(s)
 
 OPTIONS:
-   --chaos, -c [--chaos option --chaos option]    chaos command: `container(s,)/re2:regex|interval(s/m/h postfix)|STOP/KILL(:SIGNAL)/RM`
-   --random, -r                                   Random mode: randomly select single matching container to 'kill'
+   --signal value, -s value  termination signal, that will be sent by Pumba to the main process inside target container(s) (default: "SIGKILL")
 ```
 
-The `run` command is pretty simple. If you already have Docker client installed and configured on your machine (i.e. `$DOCKER_HOST` environment variable is defined), execute `run` with `--chaos` options (and optionally `--random`). And that's all.
+### Pause Container command
 
-### The "run" command
+```
+$ pumba pause -h
 
-The `run` command follows by one or more `--chaos` options, each of them is a 3-tuple (or triple), separated by `|` (vertical bar) character, that specifies container(s), recurrence interval and the "kill" command to run.
+NAME:
+   pumba pause - pause all processes
 
-#### `--chaos, -c` option(s): 3-tuple structure
+USAGE:
+   pumba pause [command options] containers (name, list of names, RE2 regex)
 
-1. First argument can be:
-  - *name* - container name
-  - *names* - comma separated list of container names
-  - *empty* - empty string; means ALL containers
-  - *re2:regex* - [RE2](https://github.com/google/re2/wiki/Syntax) regular expression; all matching containers will be "killed". Use `re2:` prefix to specify regular expression.
-2. Recurrence interval - `pumba` will run specified command recurrently, based on interval definition
-  - An interval is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
-3. "Kill" command
-  - `STOP` - stop running container(s)
-  - `KILL(:SIGNAL)` - kill running container, with specified (optional) **signal**: `SIGTERM`, `SIGKILL`, `SIGSTOP` and others. `SIGKILL` is the default signal, that will be sent if no signal is specified.
-  - `RM` - force remove running container(s)
+DESCRIPTION:
+   pause all running processes within target containers
 
-#### `--random, -r` option
+OPTIONS:
+   --duration value, -d value  pause duration: should be smaller than recurrent interval; use with optional unit suffix: 'ms/s/m/h'
+```
 
-Use this option to randomly select **single** matching container, specified by `--chaos` option.
+### Stop Container command
+
+```
+$ pumba stop -h
+NAME:
+   pumba stop - stop containers
+
+USAGE:
+   pumba stop [command options] containers (name, list of names, RE2 regex)
+
+DESCRIPTION:
+   stop the main process inside target containers, sending  SIGTERM, and then SIGKILL after a grace period
+
+OPTIONS:
+   --time value, -t value  seconds to wait for stop before killing container (default 10) (default: 10)
+```
+
+### Remove (rm) Container command
+
+```
+$ pumba rm -h
+
+NAME:
+   pumba rm - remove containers
+
+USAGE:
+   pumba rm [command options] containers (name, list of names, RE2 regex)
+
+DESCRIPTION:
+   remove target containers, with links and voluems
+
+OPTIONS:
+   --force, -f    force the removal of a running container (with SIGKILL)
+   --links, -l    remove container links
+   --volumes, -v  remove volumes associated with the container
+```
+
+### Network Emulation (netem) command
+
+```
+$ pumba netem -h
+
+NAME:
+   Pumba netem - delay, loss, duplicate and re-order (run 'netem') packets, to emulate different network problems
+
+USAGE:
+   Pumba netem command [command options] [arguments...]
+
+COMMANDS:
+     delay      dealy egress traffic
+     loss
+     duplicate
+     corrupt
+
+OPTIONS:
+   --duration value, -d value   network emulation duration; should be smaller than recurrent interval; use with optional unit suffix: 'ms/s/m/h'
+   --interface value, -i value  network interface to apply delay on (default: "eth0")
+   --target value, -t value     target IP filter; netem will impact only on traffic to target IP
+   --help, -h                   show help
+
+NAME:
+   Pumba netem - delay, loss, duplicate and re-order (run 'netem') packets, to emulate different network problems
+
+USAGE:
+   Pumba netem command [command options] [arguments...]
+
+COMMANDS:
+     delay      dealy egress traffic
+     loss       TODO: planned to implement ...
+     duplicate  TODO: planned to implement ...
+     corrupt    TODO: planned to implement ...
+
+OPTIONS:
+   --duration value, -d value   network emulation duration; should be smaller than recurrent interval; use with optional unit suffix: 'ms/s/m/h'
+   --interface value, -i value  network interface to apply delay on (default: "eth0")
+   --target value, -t value     target IP filter; netem will impact only on traffic to target IP
+   --help, -h                   show help
+```
+
+#### Network Emulation Delay sub-command
+
+```
+$ pumba netem delay -h
+
+NAME:
+   Pumba netem delay - dealy egress traffic
+
+USAGE:
+   Pumba netem delay [command options] containers (name, list of names, RE2 regex)
+
+DESCRIPTION:
+   dealy egress traffic for specified containers; networks show variability so it is possible to add random variation; delay variation isn't purely random, so to emulate that there is a correlation
+
+OPTIONS:
+   --amount value, -a value       delay amount; in milliseconds (default: 100)
+   --variation value, -v value    random delay variation; in milliseconds; example: 100ms ± 10ms (default: 10)
+   --correlation value, -c value  delay correlation; in percents (default: 20)
+```
 
 #### Examples
 
 ```
 # stop random container once in a 10 minutes
-$ ./pumba run --chaos "|10m|STOP" --random
+$ ./pumba --random --interval 10m kill --signal SIGSTOP
 ```
 
 ```
 # every 15 minutes kill `mysql` container and every hour remove containers starting with "hp"
-$ ./pumba run -c "mysql|15m|KILL:SIGTERM" -c "re2:^hp|1h|RM"
+$ ./pumba --interval 15m kill --signal SIGTERM mysql &
+$ ./pumba --interval 1h rm re2:^hp &
 ```
 
 ```
 # every 30 seconds kill "worker1" and "worker2" containers and every 3 minutes stop "queue" container
-$ ./pumba run --chaos "worker1,worker2|30s|KILL:SIGKILL" --chaos "queue|3m|STOP"
+$ ./pumba --interval 30s kill --signal SIGKILL worker1 worker2 &
+$ ./pumba --interval 3m stop queue &
+```
+
+```
+# Once in 5 minutes, Pumba will delay for 2 seconds (2000ms) egress traffic for some (randomly chosen) container,
+# named `result...` (matching `^result` regexp) on `eth2` network interface.
+# Pumba will restore normal connectivity after 2 minutes. Print debug trace to STDOUT too.
+$ ./pumba --debug --interval 5m --random netem --duration 2m --interface eth2 delay --amount 2000 re2:^result
 ```
 
 ### Running Pumba in Docker Container
 
-The second approach is to run it in a Docker container.
+The second approach to run it in a Docker container.
+
 In order to give Pumba access to Docker daemon on host machine, you will need to mount `var/run/docker.sock` unix socket.
 
 ```
 # run latest stable Pumba docker image (from master repository)
-$ docker run -d -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba:master run --chaos "|10m|STOP" --random
+$ docker run -d -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba:master pumba kill --interval 10s --signal SIGTERM ^hp
 ```
 
-Pumba will not kill its own containe no matter what. You cannot run multiple Pumba containers on same host. If you try to run more than one, only last one will run and will stop all previous Pumba containers.
+Pumba will not kill its own container.
+
+Note: For Mac OSX - before you run Pumba, you may want to do the following after downloading the [pumba_darwin_amd64](https://github.com/gaia-adm/pumba/releases) binary:
+```
+chmod +x pumba_darwin_amd64
+mv pumba_darwin_amd64 /usr/local/bin/pumba
+pumba
+```
 
 ### Next
 
-We hope you enjoy the Pumba project and will gladly accept ideas, Pull Requests, issues and contributions to the project.
+The Pumba project is available for you to try out. We will gladly accept ideas, pull requests, issues, and contributions to the project.
+
 [Pumba GitHub Repository](https://github.com/gaia-adm/pumba)
