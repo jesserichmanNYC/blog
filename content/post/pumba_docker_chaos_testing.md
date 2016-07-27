@@ -1,10 +1,12 @@
 +++
-date = "2016-07-27T20:00:00+02:00"
+date = "2016-04-16T20:00:00+02:00"
 draft = false
 title = "Pumba - Chaos Testing for Docker"
 tags = ["Docker", "testing", "chaos testing", "resilience"]
 categories = ["Development"]
 +++
+
+**Update (27-07-27):** Updated post to latest `v0.2.0` Pumba version change.
 
 ## Introduction
 
