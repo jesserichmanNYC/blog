@@ -3,7 +3,7 @@ MAINTAINER Alexei Ledenev <alexei.led@gmail.com>
 
 ENV HUGO_VERSION=0.16
 
-RUN apk add --update curl wget openssl ca-certificates && rm /var/cache/apk/*
+RUN apk add --update curl openssl ca-certificates && rm /var/cache/apk/*
 
 RUN curl -L --progress-bar https://github.com/spf13/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-64bit.tgz | tar xvz 
 
