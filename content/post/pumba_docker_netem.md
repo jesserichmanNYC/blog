@@ -16,14 +16,14 @@ Microservice architecture is one of the most important software architecture pra
 While development and deployment of such applications became a common knowledge today, creating realistic and useful testing environment still remains a challenge. One of these challenges is related to the complexity of reproducing different network failures.
 Network is an arterial system of any distributed application. Thoroughly testing of distributed application requires complex and realistic network test environments.
 
-Once you deploy Docker containers on some Docker cluster, all communication between containers happens over the network. These containers can run on same host, different hosts, different networks and even different datacenters. Network behavior and it's properties have a great impact on overall application availability, stability and performance.
+Once you deploy Docker containers on some Docker cluster, all communication between containers happens over the network. These containers can run on the same host, different hosts, different networks and even different datacenters. Network behavior and it's properties have a great impact on overall application availability, stability and performance.
 
 ## Network Emulation
 
-> So, what can you do to emulate different network properties, like: delay, packer loss, packet corruption and others? And even more: how can you emulate different network properties between containers, regardless of real network conditions or even if containers are running on the same host?
+> So, what can you do to emulate different network properties, like: delay, packer loss, packet corruption and others? And even more: how can you emulate different network properties between containers, regardless of real network conditions or even if containers are running on the the same host?
 
 It happens, that Linux has a built-in network emulation capabilities, starting from kernel 2.6.7 (first released 14 years ago).
-Linux allows to show and manipulate traffic control settings, using [tc](http://man7.org/linux/man-pages/man8/tc.8.html) tool (avaiable in `iproute2` package). [netem](http://man7.org/linux/man-pages/man8/tc-netem.8.html) is an extension (queueing discipline) of the `tc` tool, that allows emulation of different network properties, like: *delay*, *packet loss*, *packer reorder*, *duplication*, *corruption* and *bandwidth rate*.
+Linux allows to show and manipulate traffic control settings, using [tc](http://man7.org/linux/man-pages/man8/tc.8.html) tool (available in [iproute2](https://wiki.linuxfoundation.org/networking/iproute2) package). [netem](http://man7.org/linux/man-pages/man8/tc-netem.8.html) is an extension (queueing discipline) of the `tc` tool, that allows emulation of different network properties, like: *delay*, *packet loss*, *packer reorder*, *duplication*, *corruption* and *bandwidth rate*.
 
 `netem` is a very powerful tool, that can help you to simulate realistic testing network conditions for your distributed application. I highly recommend to take a closer look at it - it's a Swiss knife of network emulation.
 
@@ -45,9 +45,9 @@ Another supported option, is an ability to apply IP (or IP range) filter to the 
 Pumba tool can be downloaded as precompiled binary (for Windows, Linux and MacOS) from GitHub project [release page](https://github.com/gaia-adm/pumba/releases), or you can use already prepared Pumba [Docker image](https://hub.docker.com/r/gaiaadm/pumba). Whatever option you like.
 
 
-## Pumba dealy: `netem delay`
+## Pumba delay: `netem delay`
 
-Lets start with very simple demo. Here we will run two Docker containers: one is running `ping` command and other is Pumba Docker container, that adds 3 seconds network *delay* to the first container for 1 minute. After 1 minute, Pumba container restores network connection properties of the first container and exits.
+Lets start with very simple demo. Here we will run two Docker containers: one is running `ping` command and other is Pumba Docker container, that adds 3 seconds network *delay* to the first container for 1 minute. After 1 minute, Pumba container restores the network connection properties of the first container and exits.
 
 ```
 # open two terminal windows: (1) and (2)
@@ -188,7 +188,7 @@ $ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba
 
 ## Next
 
-The Pumba project is available for you to try out. It's open source with Apache License.
+The Pumba project is available for you to try out. It's open source with the Apache License.
 We will gladly accept ideas, pull requests, issues, or any other contributions to the project.
 
 [Pumba GitHub Repository](https://github.com/gaia-adm/pumba)
