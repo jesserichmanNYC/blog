@@ -48,7 +48,7 @@ An option is available to apply an IP range filter to the network emulation. Wit
 
 To demonstrate, we’ll run two Docker containers: one is running a `ping` command and the other is **Pumba** Docker container, that adds 3 seconds network *delay* to the ping container for 1 minute. After 1 minute, **Pumba** container restores the network connection properties of the ping container as it exits gracefully.
 
-{{< figure src="https://asciinema.org/a/82428.png" link="https://asciinema.org/a/82430?t=7" title="Pumba [netem delay] demo" >}}
+[<img src="https://asciinema.org/a/82428.png" width=800>](https://asciinema.org/a/82428?t=7)
 
 ```
 # open two terminal windows: (1) and (2)
@@ -113,7 +113,7 @@ $ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba
 Lets start with *packet loss* demo. Here we will run three Docker containers. `iperf` **server** and **client** for sending data and Pumba Docker container, that will add packer loss on client container.
 We are using **perform network throughput tests** tool [iperf](http://manpages.ubuntu.com/manpages/xenial/man1/iperf.1.html) to demonstrate *packet loss*.
 
-{{< figure src="https://asciinema.org/a/82430.png" link="https://asciinema.org/a/82430" title="Pumba [netem loss] demo" >}}
+[<img src="https://asciinema.org/a/82430.png" width=800>](https://asciinema.org/a/82430)
 
 ```
 # open three terminal windows
