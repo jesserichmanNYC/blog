@@ -12,42 +12,43 @@ categories = ["Development"]
 
 ## Introduction
 
-Microservice architecture is one of the most important software architecture practices, that became tremendously popular during last years. The Docker technology enables microservice architecture: it helps to develop, deploy and operate distributed applications, composed from hundreds of micro-services, packaged into Docker containers.
-While development and deployment of such applications became a common knowledge today, creating realistic and useful testing environment still remains a challenge. One of these challenges is related to the complexity of reproducing different network failures.
-Network is an arterial system of any distributed application. Thoroughly testing of distributed application requires complex and realistic network test environments.
+Microservice architecture has been adopted by software teams as a way to deliver business value faster. Container technology enables delivery of microservices into any environment. Docker has accelerated this by providing an easy to use toolset for development teams to build, ship, and run distributed applications. These applications can be composed of hundreds of microservices packaged in Docker containers.
 
-Once you deploy Docker containers on some Docker cluster, all communication between containers happens over the network. These containers can run on the same host, different hosts, different networks and even different datacenters. Network behavior and it's properties have a great impact on overall application availability, stability and performance.
+In a recent NGINX [survey](https://www.nginx.com/resources/library/app-dev-survey/) [Finding #7], the “biggest challenge holding back developers” is the trade-off between quality and speed. As Martin Fowler indicates, [testing strategies in microservices architecture](http://martinfowler.com/articles/microservice-testing) can be very complex. Creating a realistic and useful testing environment is an aspect of this complexity.
 
-## Network Emulation
+One challenge is **simulating network failures** to ensure **resiliency** of applications and services.
 
-> So, what can you do to emulate different network properties, like: delay, packer loss, packet corruption and others? And even more: how can you emulate different network properties between containers, regardless of real network conditions or even if containers are running on the the same host?
+The network is a critical arterial system for ensuring reliability for any distributed application. Network conditions are different depending on where the application is accessed. Network behavior can greatly impact the overall application availability, stability, performance, and user experience (UX). It’s critical to simulate and understand these impacts before the user notices. Testing for these conditions requires conducting realistic network tests.
 
-It happens, that Linux has a built-in network emulation capabilities, starting from kernel 2.6.7 (first released 14 years ago).
-Linux allows to show and manipulate traffic control settings, using [tc](http://man7.org/linux/man-pages/man8/tc.8.html) tool (available in [iproute2](https://wiki.linuxfoundation.org/networking/iproute2) package). [netem](http://man7.org/linux/man-pages/man8/tc-netem.8.html) is an extension (queueing discipline) of the `tc` tool, that allows emulation of different network properties, like: *delay*, *packet loss*, *packer reorder*, *duplication*, *corruption* and *bandwidth rate*.
+After Docker containers are deployed in a cluster, all communication between containers happen over the network. These containers run on a single host, different hosts, different networks, and in different datacenters.
 
-`netem` is a very powerful tool, that can help you to simulate realistic testing network conditions for your distributed application. I highly recommend to take a closer look at it - it's a Swiss knife of network emulation.
+> How can we test for the impact of network behavior on the application? What can we do to emulate different network properties between containers on a single host or among clusters on multiple hosts?
 
+## Pumba with Network Emulation
 
-## Pumba `netem`
-
-[Pumba](https://github.com/gaia-adm/pumba) is a tool, we developed for our own use. Pumba is a chaos testing tool for Docker containers, inspired by [Netflix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey). The main difference, that it works with containers instead of VMs.
-Pumba can kill, stop and restart running Docker containers or pause all processes within specified containers. We use it for resilience testing of our distributed applications. Resilience testing confirms that the system recovers from expected or unexpected events without loss of data or functionality. Pumba helps to simulate such events for distributed and containerized application.
-
-Lately, we enhanced Pumba adding a network emulation capabilities, starting with *delay* and *packet loss*. Now it's possible to apply *delay* or *packet loss* on any Docker container.
-Under the hood, Pumba uses linux kernel traffic control (`tc`) with `netem` queueing discipline. So, in order to make it work, you need to add `iproute2` package to your Docker images, that you want to test. Some base Docker images already include `iproute2` package, but you need to check.
-
-Pumba wraps low level `netem` options and greatly simplifies its usage. There is no magic, but a lot of code had beed written to make it easier to emulate different network properties for running Docker containers.
-
-Currently Pumba can modify egress traffic only, by adding *delay* or *packet loss*, for specified container(s). Target containers can be specified by name (single name or space separated list of names) or by RE2 regular expression. Pumba modifies container network only for defined duration and once time is passed, Pumba restores original network properties. Pumba will also restore original connection when you will gracefully shutdown the `pumba` process (with `Ctrl-C`) or stop Pumba container (with `docker stop`).
-
-Another supported option, is an ability to apply IP (or IP range) filter to the network emulation. In this case, Pumba will modify outgoing traffic for specified IP and will leave other outgoing traffic unchanged. Using this feature, you can change network properties only for specific inter-container connections and also for specific Docker networks (each Docker network has its own IP range).
-
-Pumba tool can be downloaded as precompiled binary (for Windows, Linux and MacOS) from GitHub project [release page](https://github.com/gaia-adm/pumba/releases), or you can use already prepared Pumba [Docker image](https://hub.docker.com/r/gaiaadm/pumba). Whatever option you like.
+[Pumba](https://github.com/gaia-adm/pumba) is a chaos testing tool for Docker containers, inspired by [Netflix Chaos Monkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey). The main benefit is that it works with containers instead of VMs. Pumba can kill, stop, restart running Docker containers or pause processes within specified containers. We use it for resilience testing of our distributed applications. Resilience testing ensures reliability of the system. It allows the team to verify their application recovers correctly regardless of any event (expected or unexpected) without any loss of data or functionality. Pumba simulates these events for distributed and containerized applications.
 
 
-## Pumba delay: `netem delay`
+### Pumba `netem`
 
-Lets start with very simple demo. Here we will run two Docker containers: one is running `ping` command and other is Pumba Docker container, that adds 3 seconds network *delay* to the first container for 1 minute. After 1 minute, Pumba container restores the network connection properties of the first container and exits.
+We enhanced [Pumba](https://github.com/gaia-adm/pumba) with network emulation capabilities starting with *delay* and *packet loss*. Using `pumba netem` command we can apply *delay* or *packet loss* on any Docker container. Under the hood, **Pumba** uses Linux kernel traffic control ([tc](http://man7.org/linux/man-pages/man8/tc.8.html)) with [netem](http://man7.org/linux/man-pages/man8/tc-netem.8.html) queueing discipline. To work, we need to add [iproute2](https://wiki.linuxfoundation.org/networking/iproute2) to Docker images, that we want to test. Some base Docker images already include [iproute2](https://wiki.linuxfoundation.org/networking/iproute2) package.
+
+Pumba `netem delay` and `netem loss` commands can emulate network *delay* and *packet loss* between Docker containers, even on a single host.
+
+Linux has a built-in network emulation capabilities, starting from kernel 2.6.7 (released 14 years ago). Linux allows us to manipulate traffic control settings, using [tc](http://man7.org/linux/man-pages/man8/tc.8.html) tool, available in [iproute2](https://wiki.linuxfoundation.org/networking/iproute2); [netem](http://man7.org/linux/man-pages/man8/tc-netem.8.html) is an extension (*queueing discipline*) of the tc tool. It allows emulation of network properties — *delay*, *packet loss*, *packer reorder*, *duplication*, *corruption*, and *bandwidth rate*.
+
+**Pumba** `netem` commands can help development teams simulate realistic network conditions as they build, ship, and run microservices in Docker containers.
+
+**Pumba** with low level `netem` options, greatly simplifies its usage. We have made it easier to emulate different network properties for running Docker containers.
+
+In the current release, **Pumba** modifies *egress* traffic only by adding *delay* or *packet loss* for specified container(s). Target containers can be specified by name (single name or as a space separated list) or via regular expression ([RE2](https://github.com/google/re2/wiki/Syntax)). **Pumba** modifies container network conditions for a specified duration. After a set time interval, **Pumba** restores normal network conditions. **Pumba** also restores the original connection with a graceful shutdown of the `pumba` process `Ctrl-C` or by stopping the **Pumba** container with `docker stop` command.
+An option is available to apply an IP range filter to the network emulation. With this option, **Pumba** will modify outgoing traffic for specified IP and will leave other outgoing traffic unchanged. Using this option, we can change network properties for a specific inter-container connection(s) as well as specific Docker networks — each Docker network has its own IP range.
+
+### Pumba delay: `netem delay`
+
+To demonstrate, we’ll run two Docker containers: one is running a `ping` command and the other is **Pumba** Docker container, that adds 3 seconds network *delay* to the ping container for 1 minute. After 1 minute, **Pumba** container restores the network connection properties of the ping container as it exits gracefully.
+
+{{< figure src="https://asciinema.org/a/82428.png" link="https://asciinema.org/a/82430?t=7" title="Pumba [netem delay] demo" >}}
 
 ```
 # open two terminal windows: (1) and (2)
@@ -111,6 +112,8 @@ $ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba
 
 Lets start with *packet loss* demo. Here we will run three Docker containers. `iperf` **server** and **client** for sending data and Pumba Docker container, that will add packer loss on client container.
 We are using **perform network throughput tests** tool [iperf](http://manpages.ubuntu.com/manpages/xenial/man1/iperf.1.html) to demonstrate *packet loss*.
+
+{{< figure src="https://asciinema.org/a/82430.png" link="https://asciinema.org/a/82430" title="Pumba [netem loss] demo" >}}
 
 ```
 # open three terminal windows
@@ -186,9 +189,14 @@ $ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba
       mydb
 ```
 
+## Contribution
+
+Special thanks to [Neil Gehani](https://medium.com/@GehaniNeil) for helping me with this post and to [Inbar Shani](https://github.com/inbarshani) for initial Pull Request with `netem` command.
+
 ## Next
 
-The Pumba project is available for you to try out. It's open source with the Apache License.
-We will gladly accept ideas, pull requests, issues, or any other contributions to the project.
+To see more examples on how to use Pumba with [netem] commands, please refer to the [Pumba GitHub Repository](https://github.com/gaia-adm/pumba). We have open sourced it. We gladly accept ideas, pull requests, issues, or any other contributions.
+
+Pumba can be downloaded as precompiled binary (Windows, Linux and MacOS) from the [GitHub project release page](https://github.com/gaia-adm/pumba/releases). It’s also available as a [Docker image](https://hub.docker.com/r/gaiaadm/pumba/).
 
 [Pumba GitHub Repository](https://github.com/gaia-adm/pumba)
