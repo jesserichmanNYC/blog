@@ -1,4 +1,4 @@
-FROM gliderlabs/alpine:latest
+FROM alpine:3.4
 MAINTAINER Alexei Ledenev <alexei.led@gmail.com>
 
 ENV HUGO_VERSION=0.16
