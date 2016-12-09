@@ -10,17 +10,19 @@ categories = ["Development"]
 
 > **Tip:** Consider to define and use `.dockerignore` file for every Docker image you are building. It can help you to reduce Docker image size, speedup `docker build` and avoid unintended secret exposure.
 
+![Overloaded container ship](/img/overloaded.jpg)
+
 # Docker build context
 
 The `docker build` command is used to build a new Docker image. There is one argument you can pass to the `build` command **build context**.
 
 So, what is the Docker **build context**?
 
-First, remember, that Docker is a client-server application, it consists from Docker client and Docker server (also known as *daemon*). The Docker client command line tool talks with Docker server and asks it do things. One of these things is **build**: building a new Docker image. The Docker server can run on the same machine as the client, remote machine or virtual machine, that also can be local, remote or even run on some cloud IaaS. 
+First, remember, that Docker is a client-server application, it consists from Docker client and Docker server (also known as *daemon*). The Docker client command line tool talks with Docker server and asks it do things. One of these things is **build**: building a new Docker image. The Docker server can run on the same machine as the client, remote machine or virtual machine, that also can be local, remote or even run on some cloud IaaS.
 
 Why is that important and how is the Docker **build context** related to this fact?
 
-In order to create a new Docker image, Docker server needs an access to files, you want to create the Dockder image from. So, you need somehow to send these files to the Docker server. These files are the Docker **build context**. The Docker client packs all **build context** files into `tar` archive and uploads this archive to the Docker server. By default client will take all files (and folders) in current working directory and use them as the **build context**. 
+In order to create a new Docker image, Docker server needs an access to files, you want to create the Docker image from. So, you need somehow to send these files to the Docker server. These files are the Docker **build context**. The Docker client packs all **build context** files into `tar` archive and uploads this archive to the Docker server. By default client will take all files (and folders) in current working directory and use them as the **build context**.
 It can also accept already created `tar` archive or `git` repository. In a case of `git` repository, the client will clone it with submodules into a temporary folder and will create a **build context** archive from it.
 
 # Impact on Docker build
@@ -28,12 +30,12 @@ It can also accept already created `tar` archive or `git` repository. In a case 
 The first output line, that you see, running the `docker build` command is:
 ```
 Sending build context to Docker daemon 45.3 MB
-Step 1: FROM ...  
+Step 1: FROM ...
 ```
 
 This should make things clear. Actually, **every time** you are running the `docker build` command, the Docker client creates a new **build context** archive and sends it to the Docker server. So, you are always paying this "tax": the time it takes to create an archive, storage and network traffic and latency time.
 
-> **Tip:** The **rule of thumb** is not adding files to the **build context**, if you do not need them in your.
+> **Tip:** The **rule of thumb** is not adding files to the **build context**, if you do not need them in your Docker image.
 
 # The **.dockerignore** file
 
@@ -46,9 +48,9 @@ I will try to convince you, that you should care.
 
 ## Reason #1: Docker image size
 
-The world of software development is shifting lately towards *continuous delivery*, *elastic infrastructure* and *microservice architecture*. 
+The world of software development is shifting lately towards *continuous delivery*, *elastic infrastructure* and *microservice architecture*.
 
-How is that related? 
+How is that related?
 
 Your systems are composed of multiple components (or *microservices*), each one of them running inside Linux container. There might be tens or hundreds of services and even more service instances. These service instances can be built and deployed independently of each other and this can be done for **every single code commit**. More than that, *elastic infrastructure* means that new compute nodes can be added or removed from the system and its microservices can move from node to node, to support scale or availability requirements. That means, your Docker images will be frequently built and transferred.
 
@@ -56,7 +58,7 @@ When you practice continuous delivery and microservice architecture, image size 
 
 ## Reason #2: Unintended secrets exposure
 
-Not controlling your **build context**, can also lead to an unintended exposure of your code, commit history, and secrets (keys and credentials). 
+Not controlling your **build context**, can also lead to an unintended exposure of your code, commit history, and secrets (keys and credentials).
 
 If you copy files into you Docker image with `ADD .` or `COPY .` command, you may unintendedly include your source files, whole `git` history (a `.git` folder), secret files (like `.aws`, `.env`, private keys), cache and other files not only into the Docker **build context**, but also into the final Docker image.
 
@@ -77,7 +79,7 @@ If your working directory contains files that are frequently updated (logs, test
 
 # The `.dockerignore` syntax
 
-The `.dockerignore` file is similar to `gitignore` file, used by `git` tool. similarly to `.gitignore` file, it allows you to specify a pattern for files and folders that should be ignored by the Docker client when generating a **build context**. While `.dockerignore` file syntax used to describe **ignore patterns** is similar to `.gitignore` it's not the same. 
+The `.dockerignore` file is similar to `gitignore` file, used by `git` tool. similarly to `.gitignore` file, it allows you to specify a pattern for files and folders that should be ignored by the Docker client when generating a **build context**. While `.dockerignore` file syntax used to describe **ignore patterns** is similar to `.gitignore` it's not the same.
 
 The `.dockerignore` pattern matching syntax is based on Go `filepath.Match()` function and includes some additions.
 
