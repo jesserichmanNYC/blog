@@ -107,8 +107,9 @@ $ docker run --rm -it --privileged --pid=container:redis walkerlee/nsenter -t 1 
 
 ## Heredoc Docker container
 
-Sometimes you want to get some tool as a Docker image, but you do not want to search for a suitable image or to create a new `Dockerfile` (no need to keep it for future use, for example). Sometimes storing data in a file looks like overkill.
-When all you want to do is to create a new ad-hoc container with a single command, use shell [Heredoc](http://www.tldp.org/LDP/abs/html/here-docs.html).
+Suppose you want to get some tool as a Docker image, but you do not want to search for a suitable image or to create a new `Dockerfile` (no need to keep it for future use, for example). Sometimes storing a Docker image definition in a file looks like an overkill - you need to decide how you edit, store and share this Dockerfile. Sometimes it's better to have a single line command, that you can copy, share, embed into a shell script or create special command alias.
+So, when you want to create a new ad-hoc container with a single command, try a [Heredoc](http://www.tldp.org/LDP/abs/html/here-docs.html) approach.
+
 
 ### Create Apline based container with 'htop' tool
 ```
