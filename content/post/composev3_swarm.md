@@ -54,7 +54,7 @@ With Docker 1.13, the "new" way to deploy a multi-container composed application
 ***Note**: And you do not need the `docker-compose` tool, only `yaml` file in **docker-compose** format (`version: "3"`)
 
 ```
-$ docker deploy --compose-file docker-compose.yml
+$ docker deploy --compose-file docker-compose.yml myapp
 ```
 
 ## Docker compose v3 (`version: "3"`)
