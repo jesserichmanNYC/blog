@@ -1,6 +1,6 @@
 +++
 date = "2017-01-02T18:00:00+02:00"
-draft = true
+draft = false
 title = "Everyday hacks for Docker"
 tags = ["docker", "tutorial", "devops", "hacks"]
 categories = ["DevOps"]
@@ -28,7 +28,7 @@ $ docker system  prune
 `dangling` volumes - volumes not in use by any container. To remove them, combine two commands: first, list volume IDs for `dangling` volumes and then remove them.
 
 ```
-$ docker rm $(docker volume ls -q -f "dangling=true")
+$ docker volume rm $(docker volume ls -q -f "dangling=true")
 ```
 
 ### Remove exited containers
@@ -107,11 +107,11 @@ $ docker run --rm -it --privileged --pid=container:redis walkerlee/nsenter -t 1 
 
 ## Heredoc Docker container
 
-Suppose you want to get some tool as a Docker image, but you do not want to search for a suitable image or to create a new `Dockerfile` (no need to keep it for future use, for example). Sometimes storing a Docker image definition in a file looks like an overkill - you need to decide how you edit, store and share this Dockerfile. Sometimes it's better to have a single line command, that you can copy, share, embed into a shell script or create special command alias.
+Suppose you want to get some tool as a Docker image, but you do not want to search for a suitable image or to create a new `Dockerfile` (no need to keep it for future use, for example). Sometimes storing a Docker image definition in a file looks like an overkill - you need to decide how do you edit, store and share this Dockerfile. Sometimes it's better just to have a single line command, that you can copy, share, embed into a shell script or create special command `alias`.
 So, when you want to create a new ad-hoc container with a single command, try a [Heredoc](http://www.tldp.org/LDP/abs/html/here-docs.html) approach.
 
 
-### Create Apline based container with 'htop' tool
+### Create Alpine based container with 'htop' tool
 ```
 $ docker build -t htop - << EOF
 FROM alpine
