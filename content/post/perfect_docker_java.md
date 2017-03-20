@@ -14,7 +14,7 @@ categories = ["DevOps"]
 **How**
 > **Do:** Create a separate Docker image for each step and optimize the way you are running it.
 
-![Duke and Container](/img/duke_container.png)
+![Duke and Container](/img/duke_docker.png)
 
 ## Introduction
 
