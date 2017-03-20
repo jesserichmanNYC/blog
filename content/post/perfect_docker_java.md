@@ -8,10 +8,10 @@ categories = ["DevOps"]
 
 ## TL;DR
 
-**Ask** 
-> **Question:** *What is the bare minimum I need to **build**, **test** and **run** my Java application?*
+#### Ask
+> **Question:** What is the bare minimum I need to **build**, **test** and **run** my Java application?
 
-**How**
+#### How
 > **Do:** Create a separate Docker image for each step and optimize the way you are running it.
 
 ![Duke and Container](/img/duke_docker.png)
@@ -37,7 +37,7 @@ For example:
 - [Using Java with Docker Engine](http://www.developer.com/java/data/using-java-with-docker-engine.html)
 - and many more ...
 
-These are examples of awful tutorials. 
+These are examples of **awful** tutorials. 
 
 > Make yourself a favor and do not follow these tutorials!
 
@@ -71,11 +71,11 @@ Some might say: _"but, who cares about image size? we download them just once an
 
 The size has impact on ...
 
-- network latency - need to transfer it over wires 
-- storage - need to store all these bytes somewhere
-- service availability and elasticity - when using Docker scheduler, like Kubernetes, Swarm, DC/OS or other (scheduler can move containers between hosts)
-- security - do you really, I mean **really** need `libpng` package with all its [CVE vulnerabilities](https://www.cvedetails.com/vulnerability-list/vendor_id-7294/Libpng.html) in Java application?
-- development agility - small Docker images == faster build time and faster deployment
+- **_network latency_** - need to transfer it over wires 
+- **_storage_** - need to store all these bytes somewhere
+- **_service availability and elasticity_** - when using Docker scheduler, like Kubernetes, Swarm, DC/OS or other (scheduler can move containers between hosts)
+- **_security_** - do you really, I mean **really** need `libpng` package with all its [CVE vulnerabilities](https://www.cvedetails.com/vulnerability-list/vendor_id-7294/Libpng.html) in Java application?
+- **_development agility_** - small Docker images == faster build time and faster deployment
 
 Without taking care, Java Docker images tends to grow to enormous sizes. I've met Java image of 3GB size, where the actual application and all required JAR libraries took only 150MB. 
 
