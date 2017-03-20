@@ -31,6 +31,7 @@ In this post, I will try to show you how you can create a perfect Java-to-Docker
 **Beware:** there are many "Docker for Java developers" tutorials out there, that encourage very bad practices. 
 
 For example: 
+
 - [Spark and Docker tutorial](https://sparktutorials.github.io/2015/04/14/getting-started-with-spark-and-docker.html)
 - [Introducing Docker for Java Developers](https://examples.javacodegeeks.com/devops/docker/introduction-docker-java-developers/) 
 - [Using Java with Docker Engine](http://www.developer.com/java/data/using-java-with-docker-engine.html)
@@ -58,6 +59,7 @@ If you decide to go with Oracle JDK/JRE, please read the following post before: 
 Since rare java application can be developed with standard library only, you might need to add 3rd party Java libraries, you are using for running your application and application compiled bytecode, as Java classes or packaged in _JAR_ archives. If you are using native code, you will need to add corresponding native libraries/packages too.
 
 Now, think:
+
  - _Do you really need all Ubuntu or Debian packages alongside with your Java application? 
  - _Do you want to patch security holes in packages you do not use?_
  - _Do you want to spend network and storage on unused files?_
@@ -66,7 +68,9 @@ Some might say: _"but if all your images share same Docker layers, you download 
 Usually, you have lots of different images: some you built lately, others a long time ago, others just download from DockerHub and use. All these images have a different base image or a different version of the base image, so they do not share a lot. You need to invest a lot to align all images to same base image and then spend lots of time updating these images for no reason.
 
 Some might say: _"but, who cares about image size? we download them just once and run forever"_. IMHO Docker image size is important. 
-The size has impact on 
+
+The size has impact on ...
+
 - network latency - need to transfer it over wires 
 - storage - need to store all these bytes somewhere
 - service availability and elasticity - when using Docker scheduler, like Kubernetes, Swarm, DC/OS or other (scheduler can move containers between hosts)
@@ -106,7 +110,8 @@ To build the Docker image, execute:
 $ docker build -t blog/sbdemo:latest .
 ```
 
-Running `docker history` command on created Docker image, it's possible to see that the image contains
+Running `docker history` command on created Docker image, it's possible to see that the image contains:
+
 - 4.8MB Alpine Linux Layer
 - 103MB OpenJDK JRE Layer
 - 61.8MB Application WAR file
@@ -383,7 +388,8 @@ In this section, I will show how to use Docker build flow automation service to 
 
 I'm going to use [Codefresh.io](https://codefresh.io) Docker CI/CD service (the company I'm working for) to create a **Builder** Docker image for Maven, run tests, create application WAR, build Docker image for application and deploy it to DockerHub.
 
-The Codefresh automation flow `YAML` (also called *pipeline*) is pretty straight forward.
+The Codefresh automation flow `YAML` (also called *pipeline*) is pretty straight forward:
+
 - it contains ordered list of steps
 - each step can be of type: 
 - - `build` - for `docker build` command
