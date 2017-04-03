@@ -1,6 +1,6 @@
 +++
 date = "2017-03-07T18:00:00+02:00"
-draft = true
+draft = false
 title = "Crafting perfect Java Docker build flow"
 tags = ["docker", "tutorial", "devops", "hacks", "java", "maven"]
 categories = ["DevOps"]
@@ -16,18 +16,18 @@ categories = ["DevOps"]
 
 ## Introduction
 
-I’ve started to work with Java in 1998, and for a long time, it was my main programming language. It was a long love–hate relationship.
+I started working with Java in 1998, and for a long time, it was my main programming language. It was a long love–hate relationship.
 
-During my work career, I wrote a lot of code lines in Java. Despite that fact, I’m not a fan of writing microservices in Java and putting Java applications into [Docker](https://www.docker.com/) containers.
+DDuring my work career, I wrote a lot of code in Java. Despite that fact, I don’t think Java is usually the right choice for writing microservices running in [Docker](https://www.docker.com/) containers.
 
 But, sometimes you have to work with Java. Maybe Java is your favorite language and you do not want to learn a new one, or you have a legacy code that you need to maintain, or your company decided on Java and you have no other option.
 
 Whatever reason you have to **_marry Java with Docker_**, you better **_do it properly_**.
 
-In this post, I will try to show you how you can create an effective Java-Docker build pipeline to consistently produce small, efficient and secure Docker images.
+In this post, I will show you how to create an effective Java-Docker build pipeline to consistently produce small, efficient, and secure Docker images.
 
 
-## Be Careful
+## Be careful
 
 There are plenty of _“Docker for Java developers”_ tutorials out there, that unintentionally encourage some Docker bad practices. 
 
@@ -38,31 +38,31 @@ For example:
 - [Using Java with Docker Engine](http://www.developer.com/java/data/using-java-with-docker-engine.html)
 - and others ...
 
-These are examples of **not so good** tutorials. Following these tutorials, you will get huge Docker images and long build times.
+For current demo project, first two tutorials took around 15 minutes to build (first build) and produced images of 1.3GB size each.
 
 > Make yourself a favor and do not follow these tutorials!
 
 ## What should you know about Docker?
 
-First of all, take some time and try to understand what stands behind a popular Docker technology. Any reasonable developer can understand it - it’s not a quantum mechanics.
+Developers new to Docker are often tempted to think of it as just another VM. Instead, think of Docker as a “child process”. The files and packages needed for an entire VM are different from those needed by just another process running a dev machine. Docker is even better than a child process because it allows better isolation and environmental control.
 
-Docker is a very convenient interface that wraps Linux container technology. It allows creating a properly isolated Linux process from `tar` archive that contain all required files and additional metadata. A good place to learn about Docker internals is [Understanding Docker](https://docs.docker.com/engine/understanding-docker/) article.
+If you’re new to Docker, I suggest reading this [Understanding Docker](https://docs.docker.com/engine/understanding-docker/) article. Docker isn’t so complex than any developer should not be able to understand how it works.
 
 ## Dockerizing Java application
 
-### What files to include into Java Application Docker image?
+### What files need to be included in a Java Application’s Docker image?
 
-Since Docker container is just an isolated process, you need to package into your Java Docker image only files, required to run your application.
+Since Docker containers are just isolated processes, your Java Docker image should only contain the files required to run your application.
 
 _What are these files?_
 
-First of all, it's Java Runtime Environment (**JRE**). **JRE** is a software package, that has what required to run a Java program. It includes a Java Virtual Machine (**JVM**) implementation together with an implementation of the _Java Class Library_.
+It starts with a Java Runtime Environment (**JRE**). **JRE** is a software package, that has everything required to run a Java program. It includes an implementation of the Java Virtual Machine (**JVM**) with an implementation of the _Java Class Library_.
 
-I recommend using [OpenJDK](http://openjdk.java.net/) JRE. OpenJDK licensed under [GPL](https://en.wikipedia.org/wiki/GNU_General_Public_License) with [Classpath Exception](http://www.gnu.org/software/classpath/license.html). The _Classpath Exception_ part is important. This license allows using OpenJDK with a software of any license, not just the GPL. In particular, you can use OpenJDK with proprietary software without disclosing its code.
+I recommend using [OpenJDK](http://openjdk.java.net/) JRE. OpenJDK is licensed under [GPL](https://en.wikipedia.org/wiki/GNU_General_Public_License) with [Classpath Exception](http://www.gnu.org/software/classpath/license.html). The _Classpath Exception_ part is important. This license allows using OpenJDK with any software of any license, not just the GPL. In particular, you can use OpenJDK in proprietary software without disclosing your code.
 
-If you still want to use Oracle JDK/JRE, please read the following post before: ["Running Java on Docker? You’re Breaking the Law."]((http://blog.takipi.com/running-java-on-docker-youre-breaking-the-law/)
+Before using Oracle’s JDK/JRE, please read the following post: [“Running Java on Docker? You’re Breaking the Law.”](http://blog.takipi.com/running-java-on-docker-youre-breaking-the-law/)
 
-Since rare Java applications developed with standard library only, most likely, you need also to add 3rd party Java libraries. Then add the application compiled bytecode, as plain _Java Class_ files or packaged into _JAR_ archives. And, if you are using native code, you will need to add corresponding native libraries/packages too.
+Since it’s rare for Java applications to be developed using only the standard library, you most likely need to also add 3rd party Java libraries. Then add the application compiled bytecode as plain _Java Class_ files or packaged into _JAR_ archives. And, if you are using native code, you will need to add corresponding native libraries/packages too.
 
 ### Choosing a base Docker image for Java Application
 
@@ -71,51 +71,51 @@ In order to choose the base Docker image, you need to answer the following quest
 - _What native packages do you need for your Java application?_
 - _Should you choose Ubuntu or Debian as your base image?_
 - _What is your strategy for patching security holes, including packages you are not using at all?_
-- _Do you mind to pay extra (money and time) for network traffic and storage of unused files?_
+- _Do you mind paying extra (money and time) for network traffic and storage of unused files?_
 
-Some might say: _“but, if all your images share same Docker layers, you download them just once, right?”_
+Some might say: _“but, if all your images share the same Docker layers, you only download them just once, right?”_
 
-_True_, but can be far from the reality.
+That’s _true_ in theory, but in reality is often very different.
 
-Usually, you have lots of different images: some you built lately, others a long time ago, others just download from DockerHub. All these images do not share the same base image or version. You need to invest a lot to align all images to same base image and then keep updating these images for no reason.
+Usually, you have lots of different images: some you built lately, others a long time ago, others you pull from DockerHub. All these images do not share the same base image or version. You need to invest a lot of time to align these images to share the same base image and then keep these images up-to-date.
 
 Some might say: _“but, who cares about image size? we download them just once and run forever”_. 
 
-IMHO Docker image size is very important.
+Docker image size is actually very important.
 
 The size has an impact on …
 
 - **network latency** - need to transfer Docker image over the web
-- **storage** - need to store all these bytes somewhere
+- **storage** - need to store all these bits somewhere
 - **service availability and elasticity** - when using a Docker scheduler, like Kubernetes, Swarm, DC/OS or other (scheduler can move containers between hosts)
 - **security** - do you really, I mean really need the libpng package with all its [CVE vulnerabilities](https://www.cvedetails.com/vulnerability-list/vendor_id-7294/Libpng.html) for your Java application?
 - **development agility** - small Docker images == faster build time and faster deployment
 
-Without taking care, Java Docker images tends to grow to enormous sizes. I’ve met Java images of 3GB size, where the real application and all required JAR libraries took only 150MB.
+Without being careful, Java Docker images tends to grow to enormous sizes. I’ve seen 3GB Java images, where the real code and required JAR libraries only take around 150MB.
 
-Consider using [Alpine Linux image](https://hub.docker.com/_/alpine/), which is only a 5MB image, as a base Docker image. Lots of ["Official Docker images"](https://github.com/docker-library/official-images) have Alpine-based flavor.
+Consider using [Alpine Linux image](https://hub.docker.com/_/alpine/), which is only a 5MBs image, as a base Docker image. Lots of ["Official Docker images"](https://github.com/docker-library/official-images) have an Alpine-based flavor.
 
 **Note**: Many, but not all Linux packages have versions compiled with `musl libc` C runtime library. Sometimes you want to use a package that is compiled with `glibc` (GNU C runtime library). The [frolvlad/alpine-glibc](https://hub.docker.com/r/frolvlad/alpine-glibc/) image based on Alpine Linux image and contains `glibc` to enable proprietary projects, compiled against `glibc` (e.g. OracleJDK, Anaconda), working on Alpine.
 
-### Choosing right Java Application server
+### Choosing the right Java Application server
 
-Frequently, you also need to expose some kind of interface to reach your Java application, that runs in Docker container.
+Frequently, you also need to expose some kind of interface to reach your Java application, that runs in a Docker container.
 
-When you deploy Java applications with Docker container, the default Java deployment model is changing.
+When you deploy Java applications with Docker containers, the default Java deployment model changes.
 
-Originally, Java server-side deployment assumed that you have already pre-configured Java Web Server (Tomcat, WebLogic, JBoss, or other) and you are deploying an application **WAR** (Web Archive) packaged Java application to this server and run it together with other applications, deployed on the same server.
+Originally, Java server-side deployment assumes that you have already pre-configured a Java Web Server (Tomcat, WebLogic, JBoss, or other) and you are deploying an application **WAR** (Web Archive) packaged Java application to this server and run it together with other applications, deployed on the same server.
 
-Lots of tools developed around this concept, allowing you to update running application without stopping the Java Application server, routing traffic to the new application, resolving possible class loading conflicts and more.
+Lots of tools are developed around this concept, allowing you to update running applications without stopping the Java Application server, route traffic to the new application, resolve possible class loading conflicts and more.
 
-With Docker-based deployment, you do not need these tools anymore, you also do not need fat enterprise-ready Java Application servers. The only thing that you need is a stable and scalable network server that can serve your API over HTTP/TCP or other protocol of your choice. Search Google for [“embedded Java server”](https://www.google.com/search?q="embedded java server") and take one that you like most.
+With Docker-based deployments, you do not need these tools anymore, you don't even need the fat "enterprise-ready" Java Application servers. The only thing that you need is a stable and scalable network server that can serve your API over HTTP/TCP or other protocol of your choice. Search Google for [“embedded Java server”](https://www.google.com/search?q="embedded java server") and take one that you like most.
 
-For this demo, I forked [Spring Boot REST example](https://github.com/khoubyari/spring-boot-rest-example) and modified it a bit. The demo uses [Spring Boot](https://projects.spring.io/spring-boot/) and embedded [Tomcat](http://tomcat.apache.org/) server. This is my [fork](https://github.com/alexei-led/spring-boot-rest-example) GitHub repository (`blog` branch).
+For this demo, I forked [Spring Boot's REST example](https://github.com/khoubyari/spring-boot-rest-example) and modified it a bit. The demo uses [Spring Boot](https://projects.spring.io/spring-boot/) with an embedded [Tomcat](http://tomcat.apache.org/) server. Here is my [fork](https://github.com/alexei-led/spring-boot-rest-example) on GitHub repository (`blog` branch).
 
-### Building Java Application Docker image
+### Building a Java Application Docker image
 
-In order to run this demo, I need to create a Docker image with JRE, compiled and packaged Java application and all 3rd party libraries.
+In order to run this demo, I need to create a Docker image with JRE, the compiled and packaged Java application, and all 3rd party libraries.
 
-The `Dockerfile` below is used to build such Docker image. The demo Docker image based on slim Alpine Linux with OpenJDK JRE and contains the application WAR file with all dependencies embedded into it. It's just the bare minimum required to run the demo application.
+Here is the `Dockerfile` I used to build my Docker image. This demo Docker image is based on slim Alpine Linux with OpenJDK JRE and contains the application WAR file with all dependencies embedded into it. It's just the bare minimum required to run the demo application.
 
 ```dockerfile
 # Base Alpine Linux based image with OpenJDK JRE only
@@ -134,7 +134,7 @@ To build the Docker image, run the following command:
 $ docker build -t blog/sbdemo:latest .
 ```
 
-Running the `docker history` command on created Docker image, it’s possible to see all layers that this image consists from:
+Running the `docker history` command on created Docker image will let you to see all layers that make up this image:
 
 - 4.8MB Alpine Linux Layer
 - 103MB OpenJDK JRE Layer
@@ -156,7 +156,7 @@ d85b17c6762e        2 months ago        /bin/sh -c set -x  && apk add --no-cache
 <missing>           2 months ago        /bin/sh -c #(nop) ADD file:eeed5f514a35d18...   4.8 MB              
 ```
 
-### Running Java Application Docker container
+### Running the Java Application Docker container
 
 In order to run the demo application, run following command:
 
@@ -188,9 +188,9 @@ Transfer-Encoding: chunked
 
 #### Setting Docker container memory constraints
 
-One thing you need to know about Java process memory allocation is that in reality it consumes more physical memory than specified with the `-Xmx` JVM option. The `-Xmx` option specifies only maximum Java heap size. But Java process is a regular Linux process and what is interesting, is how much actual physical memory this process is consuming.
+One thing you need to know about Java process memory allocation is that in reality it consumes more physical memory than specified with the `-Xmx` JVM option. The `-Xmx` option specifies only the maximum Java heap size. But the Java process is a regular Linux process and what is interesting, is how much actual physical memory this process is consuming.
 
-Or in other words - _what is the **Resident Set Size** (**RSS**) value for running Java process?_
+Or in other words - _what is the **Resident Set Size** (**RSS**) value for running a Java process?_
 
 Theoretically, in the case of a Java application, a required RSS size can be calculated by:
 
@@ -202,7 +202,7 @@ where _OffHeap_ consists of thread stacks, direct buffers, mapped files (librari
 
 There is a very good post on this topic: [Analyzing java memory usage in a Docker container](http://trustmeiamadeveloper.com/2016/03/18/where-is-my-memory-java/) by Mikhail Krestjaninoff.
 
-So, when you are running Java application in Docker container and want to set limits on Java memory, make sure that memory limits (`--memory`) for `docker run` commands should be bigger, than the one you specify for the `-Xmx` option.
+When using the  `--memory`  option in `docker run` make sure the limit is larger (at least twice) than what you specify for `-Xmx`.
 
 #### Offtopic: Using OOM Killer instead of GC
 
@@ -215,13 +215,13 @@ For ultra-performance-sensitive applications, where developers are conscious abo
 Anyway, **Epsilon GC** is not available yet, so it’s just an interesting theoretical use case for a moment.
 
 
-## Building Java application with Builder container
+## Building Java applications with Builder container
 
 As you can probably see, in the previous step, I did not explain how I’ve created the application WAR file.
 
-Of course, there is a Maven project file `pom.xml` and every Java developer knows how to build it. But, in order to do so, you need to install _same Java Build tools_ (JDK and Maven) on _every machine_, where you are building the application. You need to have the same versions, use same repositories and share same configurations. It’s possible, but if you have different projects and need different tools, versions, and configurations, the development environment management can quickly become a nightmare. You may also want to run your build on a clean machine that does not have Java or Maven installed,
+Of course, there is a Maven project file `pom.xml` which most Java developers should be familiar with. But, in order to actually build, you need to install the _same Java Build tools_ (JDK and Maven) on _every machine_, where you are building the application. You need to have the same versions, use the same repositories and share the same configurations. While's tt’s possible, managing different projects that rely on different tools, versions, configurations, and development environments can quickly become a nightmare.
 
-You might also want to run a build on a clean machine that does not have Java or Maven installed, _what should you do?_
+What if you might also want to run a build on a clean machine that does not have Java or Maven installed? _What should you do?_
 
 ### Java Builder Container
 
@@ -229,28 +229,27 @@ Docker can help here too. With Docker, you can create and share portable develop
 
 To create a really useful **Builder** Docker image, you need to know well how you Java Build tools are working and how `docker build` invalidates build cache. Without proper design, you will end up with non-effective and slow builds.
 
->>>>>>>
 ### Running Maven in Docker
 
-While most of these tools created nearly a generation ago, they still are very popular and widely used by Java developers.
+While most of these tools were created nearly a generation ago, they are still are very popular and widely used by Java developers.
 
-Java developers cannot imagine their life without some extra build tools. There are multiple Java build tools out there, but most of them share similar concepts and serve same targets - resolve cumbersome package dependencies, and run different build tasks, such as, **compile, lint, test, package, and deploy**.
+Java development life is hard to imagine without some extra build tools. There are multiple Java build tools out there, but most of them share similar concepts and serve the same targets - resolve cumbersome package dependencies, and run different build tasks, such as, **compile, lint, test, package, and deploy**.
 
 In this post, I will use [Maven](https://maven.apache.org), but the same approach can be applied to [Gradle](https://gradle.org/), [SBT](http://www.scala-sbt.org/), and other less popular Java Build tools.
 
-It’s important to learn how your Java Build tool works and how can it be tuned. Apply this knowledge, when creating a **Builder** Docker image and the way you are running a **Builder** Docker container.
+It’s important to learn how your Java Build tool works and how can it's tuned. Apply this knowledge, when creating a **Builder** Docker image and the way you are running a **Builder** Docker container.
 
 Maven uses the project level `pom.xml` file to resolve project dependencies. It downloads missing `JAR` files from private and public Maven repositories, and _caches_ these files for future builds. Thus, next time you run your build, it won’t download anything if your dependency had not been changed.
 
 #### Official Maven Docker image: should you use it?
 
-Maven team provides official [Docker images](https://hub.docker.com/r/_/maven/). There are multiple images (under different tags) that allow you to select an image that can answer your needs. Take a deeper look at `Dockerfile` files and `mvn-entrypoint.sh` shell script when selecting Maven image to use.
+The Maven team provides an official [Docker images](https://hub.docker.com/r/_/maven/). There are multiple images (under different tags) that allow you to select an image that can answer your needs. Take a deeper look at the `Dockerfile` files and `mvn-entrypoint.sh` shell scripts when selecting Maven image to use.
 
 There are two flavors of official Maven Docker images: regular images (JDK version, Maven version, and Linux distro) and `onbuild` images.
 
-##### What is official Maven image good for?
+##### What is the official Maven image good for?
 
-Official Maven image does a good job containerizing Maven tool itself. The image contains some JDK and Maven version. Using such image, you can run Maven build on any machine without installing JDK and Maven.
+The official Maven image does a good job containerizing the Maven tool itself. The image contains some JDK and Maven version. Using such image, you can run Maven build on any machine without installing a JDK and Maven.
 
 **Example:** running `mvn clean install` on local folder
 
@@ -258,7 +257,7 @@ Official Maven image does a good job containerizing Maven tool itself. The image
 $ docker run -it --rm --name my-maven-project -v "$PWD":/usr/src/app -w /usr/src/app maven:3.2-jdk-7 mvn clean install
 ```
 
-Maven local repository, for official Maven images, is placed inside a Docker _data volume_. That means, all downloaded dependencies **are not part of the image** and **will disappear** once Maven container is destroyed. If you do not want to download dependencies on every build, mount Maven repository Docker volume to some persistent storage (at least local folder on the Docker host). 
+Maven local repository, for official Maven images, is placed inside a Docker _data volume_. That means, all downloaded dependencies **are not part of the image** and **will disappear** once the Maven container is destroyed. If you do not want to download dependencies on every build, mount Maven repository Docker volume to some persistent storage (at least local folder on the Docker host). 
 
 **Example:** running `mvn clean install` on local folder with properly mounted Maven local repository
 
@@ -297,13 +296,13 @@ In our example, two build commands will be executed, when you build the applicat
 
 The `onbuild` Maven Docker image is not as useful as the previous image.
 
-First of all, it copies everything from current repository, so do not use it without a properly configured `.dockerignore` file.
+First of all, it copies everything from the current repository, so do not use it without a properly configured `.dockerignore` file.
 
-Then, think: _What kind of image you are trying to build?_
+Then, think: _what kind of image you are trying to build?_
 
 The new image, created from `onbuild`  Maven Docker image, includes JDK, Maven, application code (and potentially **all files** from current directory), and **all files** produced by Maven `install` phase (compiled, tested and packaged app; plus lots of build junk files you do not really need).
 
-So, this Docker image contains everything, but, for some strange reason, does not contain local Maven repository. I have no idea why Maven team created this image.
+So, this Docker image contains everything, but, for some strange reason, does not contain a local Maven repository. I have no idea why the Maven team created this image.
 
 > **Recommendation:** Do not use Maven onbuild images!
 
@@ -315,7 +314,7 @@ If you want to create proper Builder image, I will show you how to do this later
 
 Official Maven Docker image chooses to keep Maven cache folder outside of the container, exposing it as a Docker _data volume_, using `VOLUME root/.m2` command in the `Dockerfile`. A Docker data volume is a directory within one or more containers that bypasses the Docker Union File System, in simple words: it’s not part of the Docker image.
 
-What you should know about Docker _data volumes_?
+What you should know about Docker _data volumes_:
 
 - Volumes are initialized when a container is created.
 - Data volumes can be shared and reused among containers.
@@ -341,15 +340,15 @@ First, let’s try to formulate _what is the **Builder** Docker image and what s
 
 So, _what should it contain?_
 
-- Linux shell and some tools - I choose Alpine Linux
+- Linux shell and some tools - I prefer Alpine Linux
 - JDK (version) - for the `javac` compiler
 - Maven (version) - Java build tool
 - Application source code and `pom.xml` file/s - it’s the application code `SNAPSHOT` at specific point of time; just code, no need to include a `.git` repository or other files
 - Project dependencies (Maven local repository) - all `POM` and `JAR` files you need to build and test Java application, at any time, even offline, even if library disappear from the web
 
-The **Builder** image captures code, dependency, and tools at a specific point of time and stores them inside a Docker image. The **Builder** container can be used to create the application “binaries” on any machine, at any time and even without internet connection (or with poor connection).
+The **Builder** image captures code, dependencies, and tools at a specific point of time and stores them inside a Docker image. The **Builder** container can be used to create the application “binaries” on any machine, at any time and even without internet connection (or with poor connection).
 
-Here is the sample `Dockerfile` for the demo **Builder**:
+Here is the sample `Dockerfile` for my demo **Builder**:
 
 ```dockerfile
 FROM openjdk:8-jdk-alpine
@@ -395,7 +394,7 @@ Let’s go over this `Dockerfile` and I will try to explain the reasoning behind
   - `RUN mkdir -p ... curl ... tar ...` - Download and install (`untar` and `ln -s`) Apache Maven
   - Speed up Maven JVM a bit: `MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"`, read the following [post](https://zeroturnaround.com/rebellabs/your-maven-build-is-slow-speed-it-up/)
 - `RUN mvn -T 1C install && rm -rf target` Download project dependencies:
-  - Copy project `pom.xml` file and run `mvn install` command and remove build artifacts (I did not find Maven command only to download project dependencies without building anything)
+  - Copy project `pom.xml` file and run `mvn install` command and remove build artifacts as far as I know, there is no Maven command that will let you download without installing)
   - This Docker image layer will be rebuilt only when project’s `pom.xml` file changes
 - `COPY src /usr/src/app/src` - copy project source files (source, tests, and resources)
 
