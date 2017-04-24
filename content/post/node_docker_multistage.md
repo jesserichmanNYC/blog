@@ -10,6 +10,8 @@ categories = ["Docker"]
 
 Starting from Docker 17.0.5+, you can create a single `Dockerfile` that can build multiple helper images with compilers, tools, and tests and use files from above images to produce the **final** Docker image.
 
+![Multi-stage Docker Build](/img/multi_stage_build.png)
+
 ## The "core principle" of Dockerfile
 
 Docker can build images by reading the instructions from a `Dockerfile`. A `Dockerfile` is a text file that contains a list of all the commands needed to build a new Docker image. The syntax of `Dockerfile` is pretty simple and the Docker team tries to keep it intact between Docker engine releases.
