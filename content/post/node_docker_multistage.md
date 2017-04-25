@@ -189,6 +189,10 @@ $ export DOCKER_HOST=localhost:23751
 $ docker build -t local/chat:multi-stage .
 ```
 
+## Summary
+
+With Docker **multi-stage** build feature, it's possible to implement an advanced Docker image build pipeline using a single `Dockerfile`. Kudos to Docker team!
+
 ---
 
 Hope, you find this post useful. I look forward to your comments and any questions you have.
