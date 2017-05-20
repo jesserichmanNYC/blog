@@ -98,3 +98,8 @@ Run the `docker deploy --compose-file docker-compose.yml` command to deploy my v
 ----------
 
 Hope you find this post useful. I look forward to your comments and any questions you have.
+
+----------
+
+*The is a **working draft** version.* 
+*The final post version is published at [Codefresh Blog](https://codefresh.io/blog/deploy-docker-compose-v3-swarm-mode-cluster/) on December 25, 2016*

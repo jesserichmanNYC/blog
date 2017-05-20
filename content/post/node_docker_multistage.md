@@ -196,3 +196,8 @@ With Docker **multi-stage** build feature, it's possible to implement an advance
 ---
 
 Hope, you find this post useful. I look forward to your comments and any questions you have.
+
+---
+
+*The is a **working draft** version.* 
+*The final post version is published at [Codefresh Blog](https://codefresh.io/blog/node_docker_multistage/) on April 24, 2017*

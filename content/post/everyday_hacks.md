@@ -188,3 +188,7 @@ $ docker network create --driver overlay --attachable mynet
 $ docker run -it --rm --net=mynet net-tools sh
 ```
 
+---
+
+*The is a **working draft** version.* 
+*The final post version is published at [Codefresh Blog](https://codefresh.io/blog/everyday-hacks-docker/) on January 5, 2017.*
