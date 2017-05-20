@@ -1,6 +1,6 @@
 baseurl = "http://blog.terranillius.com"
 title = "Terra Nullius"
-canonifyurls = true
+canonifyURLs = true
 paginate = 10
 theme = "purehugo"
 languageCode = "en-us"
