@@ -141,5 +141,4 @@ Hope you find this post useful. I look forward to your comments and any question
 
 ---
 
-*This is a **working draft** version.* 
-*The final post version is published at [Codefresh Blog](https://codefresh.io/blog/not-ignore-dockerignore/) on December 8, 2016*
+_This is a **working draft** version. The final post version is published at [Codefresh Blog](https://codefresh.io/blog/not-ignore-dockerignore/) on December 8, 2016._

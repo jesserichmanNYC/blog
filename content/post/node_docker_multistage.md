@@ -200,5 +200,4 @@ Hope, you find this post useful. I look forward to your comments and any questio
 
 ---
 
-*This is a **working draft** version.* 
-*The final post version is published at [Codefresh Blog](https://codefresh.io/blog/node_docker_multistage/) on April 24, 2017*
+_This is a **working draft** version. The final post version is published at [Codefresh Blog](https://codefresh.io/blog/node_docker_multistage/) on April 24, 2017._
