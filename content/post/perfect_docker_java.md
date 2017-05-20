@@ -4,6 +4,7 @@ draft = false
 title = "Crafting perfect Java Docker build flow"
 tags = ["docker", "tutorial", "devops", "hacks", "java", "maven"]
 categories = ["DevOps"]
+extlink = "https://codefresh.io/blog/java_docker_pipeline/"
 +++
 
 ## TL;DR
@@ -514,3 +515,9 @@ steps:
 ---
 
 Hope, you find this post useful. I look forward to your comments and any questions you have.
+
+---
+---
+
+*This is a **working draft** version.* 
+*The final post version is published at [Codefresh Blog](https://codefresh.io/blog/java_docker_pipeline/) on March 22, 2017*
