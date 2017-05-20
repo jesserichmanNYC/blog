@@ -4,7 +4,7 @@ draft = false
 title = "Create lean Node.js image with Docker multi-stage build"
 tags = ["docker", "tutorial", "devops", "hacks", "node", "node.js", "multistage", "Dockerfile"]
 categories = ["Docker"]
-Permalink = "https://codefresh.io/blog/node_docker_multistage/"
+Extlink = "https://codefresh.io/blog/node_docker_multistage/"
 +++
 
 ## TL;DR
