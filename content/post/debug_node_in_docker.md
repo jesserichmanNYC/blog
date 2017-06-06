@@ -1,7 +1,7 @@
 +++
 date = "2017-06-03T18:00:00+02:00"
 draft = false
-title = "Advanced debugging of Node in Docker"
+title = "Debugging remote Node.js application running in a Docker container"
 tags = ["docker", "tutorial", "devops", "hacks", "node", "node.js", "debug", "Dockerfile"]
 categories = ["Docker"]
 extlink = "https://codefresh.io/blog/debug_node_in_docker/"
