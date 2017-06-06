@@ -1,6 +1,6 @@
 +++
 date = "2017-06-03T18:00:00+02:00"
-draft = true
+draft = false
 title = "Advanced debugging of Node in Docker"
 tags = ["docker", "tutorial", "devops", "hacks", "node", "node.js", "debug", "Dockerfile"]
 categories = ["Docker"]
