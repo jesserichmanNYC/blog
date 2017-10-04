@@ -4,6 +4,7 @@ draft = false
 title = "Chaos Testing for Docker Containers"
 tags = ["docker", "chaos monkey", "chaos testing", "chaos", "testing", "devops", "chaos engineering", "netem", "network emulation"]
 categories = ["Chaos Testing"]
+extlink = "https://codefresh.io/blog/chaos_testing_docker/"
 +++
 
 What follows is the text of my presentation, *Chaos Testing for Docker Containers* that I gave at [ContainerCamp](https://2017.container.camp/uk) in London this year. 
