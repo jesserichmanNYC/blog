@@ -7,6 +7,8 @@ categories = ["Kubernetes"]
 extlink = "https://codefresh.io/blog/cd_helm_kubernetes/"
 +++
 
+> THIS IS A DRAFT VERSION OF POST TO COME, PLEASE DO NOT SHARE
+
 ## Starting Point
 
 Over last years we've been adopting several concepts for our project, straggling to make them working together.
