@@ -13,13 +13,16 @@ extlink = "https://codefresh.io/blog/cd_helm_kubernetes/"
 
 Over last years we've been adopting several concepts for our project, straggling to make them working together.
 
-The first one is the *Microservice Architecture*. We did not started it clean and by the book, rather adopted it to the already existing project: splitting big services into smaller and breaking excessive coupling. The work is not finished yet. New services we are building looks more like "microservices", while there are still few that, I would call "micro-monoliths". I have a feeling that this is a typical situation for already existing project that tries to adopt the new architecture pattern: you are almost there, but there is always a work to be done.
+The first one is the *Microservice Architecture*. We did not started it clean and by the book, rather applied it to the already existing project: splitting big services into smaller and breaking excessive coupling. The refactoring work is not finished yet. New services, we are building, starts looking more like "microservices", while there are still few that, I would call "micro-monoliths".
+I have a feeling that this is a typical situation for already existing project, that tries to adopt this new architecture pattern: _you are almost there, but there is always a work to be done_.
 
-Another concept is using Docker for packaging and deploying application services. We bet on Docker from the very beginning and it used for most of our services. There are still few pure cloud services, that we are using when running our application on public cloud, thing like Databases, Error Analytics, Push Notifications and some others. 
+Another concept is using Docker for building, packaging and deploying application services. We bet on Docker from the very beginning and it used for most of our services and it happens to be a good bet. 
+There are still few pure cloud services, that we are using when running our application on public cloud, thing like Databases, Error Analytics, Push Notifications and some others.
 
-And one of the latest bet, was Kubernetes, as a runtime platform for our application. Adopting Kubernetes, allows us not only to hide away a lots of operational complexity, achieve better availability and scalability, but also be able to run our application on any public cloud and also support on-premise deployment. 
+And one of the latest bet we made was Kubernetes. Kubernetes became a main runtime platform for our application. Adopting Kubernetes, allowed us not only to hide away a lots of operational complexity, achieving better availability and scalability, but also be able to run our application on any public cloud and on-premise deployment.
 
-With great flexibility, that Kubernetes brings, come a deployment complexity. Suddenly your services are not just Docker containers, but there are a lot of new (and useful) Kubernetes resources that you need to take care about: *ConfigMsaps*, *Secrets*, *Services*, *Deployments*, *StatefulSets*, *PVCs*, *Ingress*, *Jobs* and many more. It's no always clear where to keep these resources and how they are related to Docker images. 
+With great flexibility, that Kubernetes brings, come an additional deployment complexity.
+Suddenly your services are not just plain Docker containers, but there are a lot of new (and useful) Kubernetes resources that you need to take care for: *ConfigMsaps*, *Secrets*, *Services*, *Deployments*, *StatefulSets*, *PVs*, *PVCs*, *Ingress*, *Jobs* and others. And it's no always obvious where to keep these resources and how they are related to Docker images. 
 
 
 ## "Continuous Delivery" vs. "Continuous Deployment"
