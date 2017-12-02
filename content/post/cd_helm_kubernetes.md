@@ -22,7 +22,7 @@ There are still few pure cloud services, that we are using when running our appl
 And one of the latest bet we made was Kubernetes. Kubernetes became a main runtime platform for our application. Adopting Kubernetes, allowed us not only to hide away a lots of operational complexity, achieving better availability and scalability, but also be able to run our application on any public cloud and on-premise deployment.
 
 With great flexibility, that Kubernetes brings, come an additional deployment complexity.
-Suddenly your services are not just plain Docker containers, but there are a lot of new (and useful) Kubernetes resources that you need to take care for: *ConfigMsaps*, *Secrets*, *Services*, *Deployments*, *StatefulSets*, *PVs*, *PVCs*, *Ingress*, *Jobs* and others. And it's no always obvious where to keep these resources and how they are related to Docker images. 
+Suddenly your services are not just plain Docker containers, but there are a lot of new (and useful) Kubernetes resources that you need to take care for: *ConfigMsaps*, *Secrets*, *Services*, *Deployments*, *StatefulSets*, *PVs*, *PVCs*, *Ingress*, *Jobs* and others. And it's no always obvious where to keep all these resources and how they are related to Docker images built by CI tool.
 
 
 ## "Continuous Delivery" vs. "Continuous Deployment"
