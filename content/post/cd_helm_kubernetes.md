@@ -4,7 +4,7 @@ draft = false
 title = "Continuous Delivery and Continuous Deployment for Kubernetes microservices"
 tags = ["kubernetes", "docker", "tutorial", "helm", "continuous delivery", "continuous deployment", "devops", "microservice", "cd", "ci"]
 categories = ["Kubernetes"]
-extlink = "https://codefresh.io/blog/cd_helm_kubernetes_microservices/"
+extlink = "https://codefresh.io/blog/cd_helm_kubernetes_microservices_1/"
 +++
 
 # Continuous Delivery and Continuous Deployment for Kubernetes microservices
