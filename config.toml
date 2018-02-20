@@ -1,4 +1,4 @@
-baseurl = "http://blog.terranillius.com"
+baseurl = "https://alexei-led.github.io"
 title = "Terra Nullius"
 canonifyURLs = true
 paginate = 10
