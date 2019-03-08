@@ -4,7 +4,6 @@ draft = false
 title = "Deploy Docker Compose (v3) to Swarm (mode) Cluster"
 tags = ["docker", "swarm", "docker-compose", "compose", "devops", "cluster"]
 categories = ["DevOps"]
-extlink = "https://codefresh.io/blog/deploy-docker-compose-v3-swarm-mode-cluster/"
 +++
 
 > **Disclaimer:** all code snippets bellow are working only with **Docker 1.13+**
@@ -99,7 +98,3 @@ Run the `docker deploy --compose-file docker-compose.yml` command to deploy my v
 ----------
 
 Hope you find this post useful. I look forward to your comments and any questions you have.
-
-----------
-
-_This is a **working draft** version. The final post version is published at [Codefresh Blog](https://codefresh.io/blog/deploy-docker-compose-v3-swarm-mode-cluster/) on December 25, 2016._

@@ -4,7 +4,6 @@ draft = false
 title = "Do not ignore .dockerignore"
 tags = ["Docker", "build", "dockerignore", "devops"]
 categories = ["Development"]
-extlink = "https://codefresh.io/blog/not-ignore-dockerignore/"
 +++
 
 # TL;DR
@@ -138,7 +137,3 @@ README-secret.md
 ----------
 
 Hope you find this post useful. I look forward to your comments and any questions you have.
-
----
-
-_This is a **working draft** version. The final post version is published at [Codefresh Blog](https://codefresh.io/blog/not-ignore-dockerignore/) on December 8, 2016._

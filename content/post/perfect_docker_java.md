@@ -4,7 +4,6 @@ draft = false
 title = "Crafting perfect Java Docker build flow"
 tags = ["docker", "tutorial", "devops", "hacks", "java", "maven"]
 categories = ["DevOps"]
-extlink = "https://codefresh.io/blog/java_docker_pipeline/"
 +++
 
 ## TL;DR

@@ -4,7 +4,6 @@ draft = false
 title = "Debugging remote Node.js application running in a Docker container"
 tags = ["docker", "tutorial", "devops", "hacks", "node", "node.js", "debug", "Dockerfile"]
 categories = ["Docker"]
-extlink = "https://codefresh.io/blog/debug_node_in_docker/"
 +++
 
 ## Teaser
@@ -280,7 +279,3 @@ I've recorded a short movie, just to demonstrate all steps and prove that things
 ---
 
 Hope, you find this post useful. I look forward to your comments and any questions you have.
-
----
-
-*This is a **working draft** version. The final post version is published at [Codefresh Blog](https://codefresh.io/blog/debug_node_in_docker/) on June 6, 2017.*

@@ -4,7 +4,6 @@ draft = false
 title = "Everyday hacks for Docker"
 tags = ["docker", "tutorial", "devops", "hacks"]
 categories = ["DevOps"]
-extlink = "https://codefresh.io/blog/everyday-hacks-docker/"
 +++
 
 
@@ -188,7 +187,3 @@ $ docker network create --driver overlay --attachable mynet
 # create net-tools container and attach it to mynet overlay network
 $ docker run -it --rm --net=mynet net-tools sh
 ```
-
----
-
-_This is a **working draft** version. The final post version is published at [Codefresh Blog](https://codefresh.io/blog/everyday-hacks-docker/) on January 5, 2017._
