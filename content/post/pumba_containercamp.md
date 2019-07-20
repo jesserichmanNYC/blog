@@ -189,7 +189,7 @@ sh$ iperf -c server -u
 
 {{< youtube 68ZepHa5UVg >}}
 
-{{< speakerdeck c4a0beb3a4ba4391be0aaa273c8de8de >}}
+[Slides](https://speakerdeck.com/alexeiled/chaos-testing-for-docker-containers)
 
 ---
 
