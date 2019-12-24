@@ -80,7 +80,16 @@ Summary:
 
 The `secrets-init` runs as `PID 1`, acting like a simple init system serving as `ENTRYPOINT` or first container command, which is responsible to launch a child process, proxying all systems signals to a session rooted at that child process. This is the essence of init process. On the other hand, the `secrets-init` also passes _almost_ all environment variables without modification, replacing special _secret variables_ with values from Secret Management services.
 
-### Integration with AWS Secrets Manager
+### Integration with Docker
+
+...
+
+
+### Integration with Kubernetes
+
+...
+
+### Working with AWS Secrets Manager
 
 To start using `secrets-init` with AWS Secrets Manager, user should put an AWS secret ARN as environment variable value. The `secrets-init` will resolve any environment value, using specified ARN, to a referenced secret value.
 
@@ -94,7 +103,7 @@ MY_DB_PASSWORD=arn:aws:secretsmanager:$AWS_REGION:$AWS_ACCOUNT_ID:secret:mydbpas
 MY_DB_PASSWORD=very-secret-password
 ```
 
-### Integration with AWS Systems Manager Parameter Store
+### Working with AWS Systems Manager Parameter Store
 
 It is possible to use AWS Systems Manager Parameter Store to store application parameters as plain text or encrypted (kind of secrets).
 
@@ -114,7 +123,7 @@ In order to resolve AWS secrets from AWS Secrets Manager and Parameter Store, `s
 
 This can be achieved by assigning IAM Role to Kubernetes Pod or ECS Task. It's possible to assign IAM Role to EC2 instance, where container is running, but this option is less secure.
 
-### Integration with Google Secret Manager
+### Working with Google Secret Manager
 
 Google Cloud released recently a new service for managing secrets in the cloud: [Google Secret Manager](https://cloud.google.com/secret-manager)
 
