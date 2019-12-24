@@ -1,6 +1,6 @@
 +++
 date = "2019-03-08T10:00:00+02:00"
-draft = true
+draft = false
 title = "Kubernetes Continuous Integration"
 tags = ["Kubernetes", "CI/CD","Continuous Integration", "Helm"]
 categories = ["Development"]

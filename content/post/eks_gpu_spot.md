@@ -1,6 +1,6 @@
 +++
 date = "2019-07-20T10:00:00+02:00"
-draft = true
+draft = false
 title = "EKS GPU Cluster from Zero to Hero"
 tags = ["Kubernetes", "EKS","GPU", "Spot", "AWS", "Machine Learning"]
 categories = ["Development"]
