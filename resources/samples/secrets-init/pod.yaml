@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: printenv-pod
+spec:
+  restartPolicy: Never
+  serviceAccountName: iam-secrets-manager-ro
+  initContainers:
+    - name: secrets-init
+      image: doitintl/secrets-init:v0.2.1
+      command: 
+        - sh
+      args:
+        - -c
+        - "cp /usr/local/bin/secrets-init /secrets-init/bin/"
+      volumeMounts:
+      - mountPath: /secrets-init/bin
+        name: secrets-init-volume
+  containers:
+  - image: alpine:3
+    name: print-env
+    env:
+      - name: AWS_REGION
+        value: us-west-2
+      - name: NOT_A_SECRET
+        value: hello
+      - name: TOP_SECRET
+        value: arn:aws:secretsmanager:us-west-2:906364353610:secret:myamazingsupersecret-Bccaq7
+    command:
+      - sh
+    args:
+      - -c
+      - "tail -f /dev/null"
+    volumeMounts:
+    - mountPath: /secrets-init/bin
+      name: secrets-init-volume
+  volumes:
+  - name: secrets-init-volume
+    emptyDir: {}

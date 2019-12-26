@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: printenv-job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: iam-secrets-manager-ro
+      initContainers:
+        - name: secrets-init
+          image: doitintl/secrets-init:v0.2.1
+          command: 
+            - sh
+          args:
+            - -c
+            - "cp /usr/local/bin/secrets-init /secrets-init/bin/"
+          volumeMounts:
+          - mountPath: /secrets-init/bin
+            name: secrets-init-volume
+      containers:
+      - image: alpine:3
+        name: print-env
+        env:
+          - name: AWS_REGION
+            value: us-west-2
+          - name: NOT_A_SECRET
+            value: hello
+          - name: TOP_SECRET
+            value: arn:aws:secretsmanager:us-west-2:906364353610:secret:myamazingsupersecret-Bccaq7
+        command:
+          - /secrets-init/bin/secrets-init
+        args:
+          - sh
+          - -c
+          - 'echo $TOP_SECRET'
+        volumeMounts:
+        - mountPath: /secrets-init/bin
+          name: secrets-init-volume
+      volumes:
+      - name: secrets-init-volume
+        emptyDir: {}
