@@ -39,7 +39,7 @@ data:
 kubectl create -f db-credentials.yaml
 ```
 
-Please note, that storing a sensitive data in a Kubernetes Secret does not make it secure. By default, all data in Kubernetes Secrets is stored as a plane text encoded with `base64`.
+Please note, that storing a sensitive data in a Kubernetes Secret does not make it secure. By default, all data in Kubernetes Secrets is stored as a plantext encoded with `base64`.
 
 Starting with version 1.13, Kubernetes supports [encrypting Secrets data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/), using `EncryptionConfiguration` object with built-in or external encryption provider.
 

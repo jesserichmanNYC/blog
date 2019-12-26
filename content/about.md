@@ -7,4 +7,4 @@ title = "about"
 
 ## Alexei Ledenev
 
-Software Developer
+Cloud Architect and Open Source Developer

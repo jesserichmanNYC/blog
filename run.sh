@@ -8,7 +8,7 @@ echo "HUGO_REFRESH_TIME:" $HUGO_REFRESH_TIME
 echo "HUGO_THEME:" $HUGO_THEME
 echo "HUGO_BASEURL" $HUGO_BASEURL
 
-HUGO=/usr/bin/hugo
+HUGO=${HUGO:-/usr/local/bin/hugo}
 
 while [ true ]
 do
